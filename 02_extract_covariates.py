@@ -5,12 +5,25 @@ import scipy as sp
 import sklearn as sk
 import sklearn.decomposition
 from csv import QUOTE_ALL
+import argparse
 
-# file names
-data_dir='/scratch1/battle-fs1/ashis/progdata/brain_process/v6'
-all_cov_fn = data_dir + '/covariates/20170901.all_covariates.txt'
-all_cov_pc_fn = data_dir + '/covariates/20170901.all_covariates.PCs.txt'
-std_cov_pc_fn = data_dir + '/covariates/20170901.std_covars.PCs.txt'
+''' argument parsing '''
+parser = argparse.ArgumentParser()
+parser.add_argument('-all_cov_fn',
+                    help='all covariates file name',
+                    default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.txt')
+parser.add_argument('-all_cov_pc_fn',
+                    help='output - all covariates with pcs file name',
+                    default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.PCs.txt')
+parser.add_argument('-std_cov_pc_fn',
+                    help='standard covariates with pcs file name',
+                    default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.std_covars.PCs.txt')
+
+args = parser.parse_args()
+
+all_cov_fn = args.all_cov_fn
+all_cov_pc_fn = args.all_cov_pc_fn
+std_cov_pc_fn = args.std_cov_pc_fn
 
 # extract the covariates we want to analyze and also exclude samples
 EXCLUDE_MATCHING = ['MHALS', 'MHALZDMT', 'MHDMNTIA', 'MHENCEPHA', 'MHFLU', 'MHJAKOB', 'MHMS',
