@@ -1,24 +1,36 @@
 import pandas as pd
 import numpy as np
 import scipy as sp
-from fancyimpute import KNN 
+#from fancyimpute import KNN 
 import sklearn as sk
 import sklearn.decomposition
 from csv import QUOTE_ALL
+
+# file names
+data_dir='/scratch1/battle-fs1/ashis/progdata/brain_process/v6'
+all_cov_fn = data_dir + '/covariates/20170901.all_covariates.txt'
+all_cov_pc_fn = data_dir + '/covariates/20170901.all_covariates.PCs.txt'
+std_cov_pc_fn = data_dir + '/covariates/20170901.std_covars.PCs.txt'
 
 # extract the covariates we want to analyze and also exclude samples
 EXCLUDE_MATCHING = ['MHALS', 'MHALZDMT', 'MHDMNTIA', 'MHENCEPHA', 'MHFLU', 'MHJAKOB', 'MHMS',
   'MHPRKNSN', 'MHREYES', 'MHSCHZ', 'MHSEPSIS', 'MHDPRSSN', 'MHLUPUS', 'MHCVD', 'MHHIVCT']
 
-SEQ_COVARS = ['SME2MPRT', 'SMCHMPRS', 'SMNTRART', 'SMNUMGPS', 'SMMAPRT', 'SMEXNCRT', 'SM550NRM', 'SMGNSDTC', 'SMUNMPRT', 'SM350NRM', 'SMRDLGTH', 'SMMNCPB', 'SME1MMRT', 'SMSFLGTH', 'SMESTLBS', 'SMMPPD', 'SMNTERRT', 'SMRRNANM', 'SMRDTTL', 'SMVQCFL', 'SMMNCV', 'SMTRSCPT', 'SMMPPDPR', 'SMCGLGTH', 'SMGAPPCT', 'SMUNPDRD', 'SMNTRNRT', 'SMMPUNRT', 'SMEXPEFF', 'SMMPPDUN', 'SME2MMRT', 'SME2ANTI', 'SMALTALG', 'SME2SNSE', 'SMMFLGTH', 'SME1ANTI', 'SMSPLTRD', 'SMBSMMRT', 'SME1SNSE', 'SME1PCTS', 'SMRRNART', 'SME1MPRT', 'SMNUM5CD', 'SMDPMPRT', 'SME2PCTS', 'Number_of_input_reads', 'Number_of_reads_mapped_to_multiple_loci', 'Number_of_reads_mapped_to_too_many_loci', 'Number_of_splices_AT/AC', 'Number_of_splices_Annotated_sjdb', 'Number_of_splices_GC/AG', 'Number_of_splices_GT/AG', 'Number_of_splices_Non-canonical', 'Number_of_splices_Total', 'Uniquely_mapped_reads_number', 'Uniquely_mapped_reads_percentage', 'percentage_of_reads_mapped_to_multiple_loci', 'percentage_of_reads_unmapped_too_short']
+### TODO: STAR covariates are not available for gtex v8 data, 
+### some covariates are empty: SMNUMGPS, SM550NRM, SM350NRM, SMMNCPB, SMMNCV, SMCGLGTH, SMGAPPCT, SMNUM5CD
+### some covariates are constant: SMUNMPRT, SMESTLBS, SMUNPDRD, SMDPMPRT
+# SEQ_COVARS = ['SME2MPRT', 'SMCHMPRS', 'SMNTRART', 'SMNUMGPS', 'SMMAPRT', 'SMEXNCRT', 'SM550NRM', 'SMGNSDTC', 'SMUNMPRT', 'SM350NRM', 'SMRDLGTH', 'SMMNCPB', 'SME1MMRT', 'SMSFLGTH', 'SMESTLBS', 'SMMPPD', 'SMNTERRT', 'SMRRNANM', 'SMRDTTL', 'SMVQCFL', 'SMMNCV', 'SMTRSCPT', 'SMMPPDPR', 'SMCGLGTH', 'SMGAPPCT', 'SMUNPDRD', 'SMNTRNRT', 'SMMPUNRT', 'SMEXPEFF', 'SMMPPDUN', 'SME2MMRT', 'SME2ANTI', 'SMALTALG', 'SME2SNSE', 'SMMFLGTH', 'SME1ANTI', 'SMSPLTRD', 'SMBSMMRT', 'SME1SNSE', 'SME1PCTS', 'SMRRNART', 'SME1MPRT', 'SMNUM5CD', 'SMDPMPRT', 'SME2PCTS', 'Number_of_input_reads', 'Number_of_reads_mapped_to_multiple_loci', 'Number_of_reads_mapped_to_too_many_loci', 'Number_of_splices_AT/AC', 'Number_of_splices_Annotated_sjdb', 'Number_of_splices_GC/AG', 'Number_of_splices_GT/AG', 'Number_of_splices_Non-canonical', 'Number_of_splices_Total', 'Uniquely_mapped_reads_number', 'Uniquely_mapped_reads_percentage', 'percentage_of_reads_mapped_to_multiple_loci', 'percentage_of_reads_unmapped_too_short']
+SEQ_COVARS = ['SME2MPRT', 'SMCHMPRS', 'SMNTRART',  'SMMAPRT', 'SMEXNCRT', 'SMGNSDTC',  'SMRDLGTH', 'SME1MMRT', 'SMSFLGTH', 'SMMPPD', 'SMNTERRT', 'SMRRNANM', 'SMRDTTL', 'SMVQCFL', 'SMTRSCPT', 'SMMPPDPR', 'SMNTRNRT', 'SMMPUNRT', 'SMEXPEFF', 'SMMPPDUN', 'SME2MMRT', 'SME2ANTI', 'SMALTALG', 'SME2SNSE', 'SMMFLGTH', 'SME1ANTI', 'SMSPLTRD', 'SMBSMMRT', 'SME1SNSE', 'SME1PCTS', 'SMRRNART', 'SME1MPRT', 'SME2PCTS']
 
-COVAR_SUBSET = ['st_id', 'tissue_abbrev', 'SMRIN', 'DTHCODD_CAT', 'Number_of_input_reads', 'SMMNCV', 'SME2SNSE', 'SMUNPDRD', 'SMTRSCPT', 'SME2ANTI', 'SMMPPD', 'SMCHMPRS', 'SMEXNCRT', 'SMRRNART', 'SM550NRM', 'SMNTRNRT', 'Number_of_reads_mapped_to_multiple_loci', 'Number_of_splices_GT/AG', 'GENDER', 'AGE', 'RACE', 'ETHNCTY', 'HGHT', 'WGHT', 'BMI']
+### GENDER has been replaced by SEX in gtex v8
+#COVAR_SUBSET = ['st_id', 'tissue_abbrev', 'SMRIN', 'DTHCODD_CAT', 'Number_of_input_reads', 'SMMNCV', 'SME2SNSE', 'SMUNPDRD', 'SMTRSCPT', 'SME2ANTI', 'SMMPPD', 'SMCHMPRS', 'SMEXNCRT', 'SMRRNART', 'SM550NRM', 'SMNTRNRT', 'Number_of_reads_mapped_to_multiple_loci', 'Number_of_splices_GT/AG', 'GENDER', 'AGE', 'RACE', 'ETHNCTY', 'HGHT', 'WGHT', 'BMI']
+COVAR_SUBSET = ['st_id', 'tissue_abbrev', 'SMRIN', 'DTHCODD_CAT', 'SMMNCV', 'SME2SNSE', 'SMUNPDRD', 'SMTRSCPT', 'SME2ANTI', 'SMMPPD', 'SMCHMPRS', 'SMEXNCRT', 'SMRRNART', 'SM550NRM', 'SMNTRNRT', 'SEX', 'AGE', 'RACE', 'ETHNCTY', 'HGHT', 'WGHT', 'BMI']
 
 DISEASE_VARS = ["MHABNWBC","MHALS","MHALZDMT","MHALZHMR","MHARTHTS","MHASCITES","MHASTHMA","MHBCTINF","MHBLDDND","MHCANCERC","MHCANCERNM","MHCLLULTS","MHCLRD","MHCOCAINE5","MHCOPD","MHCOUGHU","MHCVD","MHDLYSIS","MHDMNTIA","MHDPRSSN","MHDTND72H","MHENCEPHA","MHEURO5","MHFLU","MHFNGINF","MHFVRU","MHGNRR12M","MHHEPBCT","MHHEPCCT","MHHEROIN","MHHGH","MHHIVCT","MHHIVNT","MHHMPHLIA","MHHMPHLIAB","MHHRTATT","MHHRTDIS","MHHRTDISB","MHHTN","MHINFLNE","MHIVDRG5","MHJAKOB","MHLAPTHU","MHLUPUS","MHLVRDIS","MHMENINA","MHMS","MHMSXWMA","MHMSXWMB","MHNEPH","MHNGHTSWT","MHNPHYS4W","MHNRTHEUR","MHOPNWND","MHOPPINF","MHORGNTP","MHOSTMYLTS","MHPLLABS","MHPNMIAB","MHPNMNIA","MHPRCNP","MHPRKNSN","MHPSBLDCLT","MHRA","MHRBSANML","MHREYES","MHRNLFLR","MHSARS","MHSCHZ","MHSCLRDRM","MHSDRGABS","MHSEPSIS","MHSKNSPT","MHSMLPXCT","MHSMLPXVC","MHSRC","MHSRCDSS","MHSRGHM","MHSTD","MHSTRDLT","MHSUBABSA","MHSUBABSB","MHSXMDA","MHSXMDB","MHSYPH12M","MHSZRSU","MHT1D","MHT2D","MHTBHX","MHTEMPU","MHTTCMT","MHTTOO12M","MHTTOONP","MHTXCEXP","MHUK8096","MHUREMIA","MHWKNSSU","MHWNVCT","MHWNVHX","MHWTLSUA","MHWTLSUB"]
 
 # note: Deletion_average_length dropped
 
-dat_cov = pd.read_csv('covariates/20170517.all_covariates.txt', delimiter='\t', low_memory=False)
+dat_cov = pd.read_csv(all_cov_fn, delimiter='\t', low_memory=False)
 
 # drop samples we don't want to process
 dat_cov_excl = dat_cov[dat_cov[EXCLUDE_MATCHING].apply(sum, 1) == 0]
@@ -26,10 +38,7 @@ dat_cov_excl = dat_cov[dat_cov[EXCLUDE_MATCHING].apply(sum, 1) == 0]
 dat_cov_excl = dat_cov_excl[np.isfinite(dat_cov_excl['SMMPPDPR'])]
 
 dat_seq_cov = dat_cov_excl[SEQ_COVARS]
-dat_seq_cov_imp = pd.DataFrame(KNN(k=4).complete(dat_seq_cov))
-dat_seq_cov_imp.columns = dat_seq_cov.columns
-dat_seq_cov_imp.index = dat_seq_cov.index
-
+dat_seq_cov_imp = dat_seq_cov  # no missing value in seq cov
 
 # scale
 dat_seq_cov_imp_scale = dat_seq_cov_imp.apply(lambda x: (x - x.mean())/x.std(), 0)
@@ -55,6 +64,7 @@ def can_conv(x):
   except ValueError:
     return False
   return True
+
 disease_not_str = dat_disease.apply(lambda x: all((can_conv(z) for z in x)))
 dat_disease = dat_disease[disease_not_str.index[disease_not_str]]
 disease_counts = dat_disease.apply(lambda x: sum(x) > 0)
@@ -69,10 +79,10 @@ for idx in range(3):
   dp = 'MH_PC{}'.format(1 + idx)
   dat_cov_excl[dp] = disease_comp[:, idx]
 
-dat_cov_excl.to_csv('covariates/20170517.all_covariates.PCs.txt', sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
+dat_cov_excl.to_csv(all_cov_pc_fn, sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
 
 #dceimp = pd.DataFrame(KNN(k=3).complete(dat_cov_excl[COVAR_SUBSET]))
 #dceimp.columns = dat_cov_excl[COVAR_SUBSET].columns
-dat_cov_excl[COVAR_SUBSET].to_csv('covariates/20170517.std_covars.PCs.txt', sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
+dat_cov_excl[COVAR_SUBSET].to_csv(std_cov_pc_fn, sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
   
 
