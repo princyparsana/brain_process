@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import scipy as sp
-#from fancyimpute import KNN 
+from fancyimpute import KNN 
 import sklearn as sk
 import sklearn.decomposition
 from csv import QUOTE_ALL
@@ -47,11 +47,18 @@ dat_cov = pd.read_csv(all_cov_fn, delimiter='\t', low_memory=False)
 
 # drop samples we don't want to process
 dat_cov_excl = dat_cov[dat_cov[EXCLUDE_MATCHING].apply(sum, 1) == 0]
-# drop samples which weren't sequenced (no seq metrics)
-dat_cov_excl = dat_cov_excl[np.isfinite(dat_cov_excl['SMMPPDPR'])]
 
 dat_seq_cov = dat_cov_excl[SEQ_COVARS]
-dat_seq_cov_imp = dat_seq_cov  # no missing value in seq cov
+# impute NAs in seq cov data
+if dat_seq_cov.isnull().sum().sum() > 0:
+  dat_seq_cov_imp = pd.DataFrame(KNN(k=4).complete(dat_seq_cov))
+  dat_seq_cov_imp.columns = dat_seq_cov.columns
+  dat_seq_cov_imp.index = dat_seq_cov.index
+else:
+  dat_seq_cov_imp = dat_seq_cov
+
+if dat_seq_cov_imp.isnull().sum().sum() > 0:
+  raise Exception('NA values in dat_seq_cov!')
 
 # scale
 dat_seq_cov_imp_scale = dat_seq_cov_imp.apply(lambda x: (x - x.mean())/x.std(), 0)
