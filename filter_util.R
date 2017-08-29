@@ -55,3 +55,28 @@ filter_on_variance <- function(expr.df, raw.df, n, min.var=1e-6, min.mean=-Inf){
   stop('filter_on_variance() not yet tested.')  # ensure the function is tested.
   return(expr.df)
 }
+
+filter_on_ir_dominance <- function(expr.mat, ir.mat, annot.trans, max.dominant.ir=0.95, n_1=TRUE){
+  ### make sure matrices have the same order as expr.mat
+  features = rownames(expr.mat)
+  samples = colnames(expr.mat)
+  ir.mat <- ir.mat[features, samples]
+  
+  ### keep only required isoforms in annotation
+  annot.trans <- annot.trans[features, ,drop=F]
+  
+  ### filter all isoforms if dominant ir > max.dominant.ir
+  mean_ir <- apply(ir.mat, 1, mean)
+  ir_genes <- annot.trans[rownames(expr.mat), 'geneid']
+  dominant_ir <- tapply(mean_ir, ir_genes, max)
+  genes.passed <- names(dominant_ir[dominant_ir<=max.dominant.ir])
+  expr.mat <- expr.mat[ir_genes %in% genes.passed, ]
+  
+  ### take n-1 isoforms per gene
+  if(n_1 == TRUE){
+    least_dominant_ir = tapply(mean_ir, ir_genes, function(irs) names(which.min(irs)))
+    expr.mat <- expr.mat[!rownames(expr.mat) %in% least_dominant_ir, ]
+  }
+  
+  return(expr.mat)
+}
