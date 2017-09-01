@@ -1,15 +1,44 @@
-OUTLIER_FILES = c('20170517.outlier_samples.txt')  # lists of sample outliers, set to NULL for the v0 run
-#OUTLIER_FILES <- NULL
-base_dir = 'outlier_plots'
-system(sprintf('mkdir -p %s', base_dir))
+library(argparser)
+source('io_util.R')
 
-brainCovarFile <- 'covariates/20170517.all_covariates.PCs.brain.txt'
-brainExprFile <- '20170517.gtex_expression.gene.brain.txt'
-geneMedExprFile <- '20170517.gtex_expression.gene.median_cvg.txt'
+args <- arg_parser("program");
+args <- add_argument(args, '-outlier',
+                     help='files containing lists of sample outliers, comma separated. empty string for the v0 run',
+                     default="")
+args <- add_argument(args, '-cov',
+                     help='covariate file',
+                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.PCs.brain.txt')
+args <- add_argument(args, '-expr',
+                     help='expression file',
+                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gtex_expression.gene.brain.txt')
+args <- add_argument(args, '-med',
+                     help='median file',
+                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gtex_expression.gene.median_cvg.txt')
+args <- add_argument(args, '-outlier_pc',
+                     help='file to save outlier pc values',
+                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gene.sample.outlier.pc.values.txt')
+args <- add_argument(args, '-expr_filtered',
+                     help='file to save filtereted expression file',
+                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gtex_expression.brain.good_genes.outlier_rm.txt')
+args <- add_argument(args, '-pltdir',
+                     help='directory to save plots',
+                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/outlier_plots/brain_genes')
+
+argv = parse_args(args)
+OUTLIER_FILES = strsplit(argv$outlier, split = ",")[[1]]
+brainCovarFile <- argv$cov
+brainExprFile <- argv$expr
+geneMedExprFile <- argv$med
+
+outlier_pc_fn <- argv$outlier_pc
+expr_filtered_fn <- argv$expr_filtered
+base_dir = argv$pltdir
+
+system(sprintf('mkdir -p %s', base_dir))
 
 brainCov <- read.table(brainCovarFile, header=T, row.names=1, sep='\t')
 geneMedExpr <- read.table(geneMedExprFile, header=T, row.names=1, sep='\t')
-brainExpr <- read.table(brainExprFile, header=T, row.names=1, sep='\t')
+brainExpr <- read_df(brainExprFile, header=T, row.names=1, sep='\t', check.names = T)
 
 pairPlots <- list(c('seq_pc1', 'seq_pc2'),
                   c('seq_pc3', 'seq_pc4'),
@@ -17,14 +46,12 @@ pairPlots <- list(c('seq_pc1', 'seq_pc2'),
                   c('log_seq_pc1', 'log_seq_pc2'),
                   c('log_seq_pc3', 'log_seq_pc4'),
                   c('log_seq_pc4', 'log_seq_pc5'),
-                  c('Number_of_reads_mapped_to_multiple_loci', 'Number_of_splices_GC.AG'),
-                  c('SMRIN', 'Uniquely_mapped_reads_percentage'))
+                  c('SMRIN', 'SMMPUNRT'))
 
 rownames(brainCov) <- make.names(brainCov$st_id)
 
-brainMedExpr <- geneMedExpr[,unique(brainCov$tissue_abbrev)]
 
-if ( ! is.null(OUTLIER_FILES) ) {
+if ( length(OUTLIER_FILES) > 0 ) {
   outlier.samples <- c()
   for ( fl in OUTLIER_FILES ) {
     sams <- scan(fl, what='s')
@@ -44,9 +71,9 @@ cat(sprintf('\tOverlp: %d\n', length(samp.inter)))
 
 brainCov <- brainCov[samp.inter,]
 brainExpr <- brainExpr[,samp.inter]
+brainMedExpr <- geneMedExpr[row.names(brainExpr),as.character(unique(brainCov$tissue_abbrev))]
 
 # at least one tissue has to have a count above 12 reads
-
 use.genes <- apply(brainMedExpr, 1, max) > 12
 
 cat(sprintf('\nGenes\n'))
@@ -116,5 +143,5 @@ for ( tissue in unique(brainCov$tissue_abbrev) ) {
   samp.values <- cbind(samp.values, pcdf)
 }
 
-write.table(samp.values, file='20170517.gene.sample.outlier.pc.values.txt', quote=F)
-write.table(brainExpr[use.genes,], file='20170517.gtex_expression.brain.good_genes.outlier_rm.txt', quote=F, sep='\t')
+write.table(samp.values, file= outlier_pc_fn, quote=F)
+write.table(brainExpr[use.genes,], file= expr_filtered_fn, quote=F, sep='\t')
