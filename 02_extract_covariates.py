@@ -27,30 +27,55 @@ std_cov_pc_fn = args.std_cov_pc_fn
 
 # extract the covariates we want to analyze and also exclude samples
 EXCLUDE_MATCHING = ['MHALS', 'MHALZDMT', 'MHDMNTIA', 'MHENCEPHA', 'MHFLU', 'MHJAKOB', 'MHMS',
-  'MHPRKNSN', 'MHREYES', 'MHSCHZ', 'MHSEPSIS', 'MHDPRSSN', 'MHLUPUS', 'MHCVD', 'MHHIVCT']
+                    'MHPRKNSN', 'MHREYES', 'MHSCHZ', 'MHSEPSIS', 'MHDPRSSN', 'MHLUPUS', 
+                    'MHCVD', 'MHHIVCT', 'MHALZHMR', 'MHCANCERC']
 
 ### TODO: STAR covariates are not available for gtex v8 data, 
 ### some covariates are empty: SMNUMGPS, SM550NRM, SM350NRM, SMMNCPB, SMMNCV, SMCGLGTH, SMGAPPCT, SMNUM5CD
 ### some covariates are constant: SMUNMPRT, SMESTLBS, SMUNPDRD, SMDPMPRT
 # SEQ_COVARS = ['SME2MPRT', 'SMCHMPRS', 'SMNTRART', 'SMNUMGPS', 'SMMAPRT', 'SMEXNCRT', 'SM550NRM', 'SMGNSDTC', 'SMUNMPRT', 'SM350NRM', 'SMRDLGTH', 'SMMNCPB', 'SME1MMRT', 'SMSFLGTH', 'SMESTLBS', 'SMMPPD', 'SMNTERRT', 'SMRRNANM', 'SMRDTTL', 'SMVQCFL', 'SMMNCV', 'SMTRSCPT', 'SMMPPDPR', 'SMCGLGTH', 'SMGAPPCT', 'SMUNPDRD', 'SMNTRNRT', 'SMMPUNRT', 'SMEXPEFF', 'SMMPPDUN', 'SME2MMRT', 'SME2ANTI', 'SMALTALG', 'SME2SNSE', 'SMMFLGTH', 'SME1ANTI', 'SMSPLTRD', 'SMBSMMRT', 'SME1SNSE', 'SME1PCTS', 'SMRRNART', 'SME1MPRT', 'SMNUM5CD', 'SMDPMPRT', 'SME2PCTS', 'Number_of_input_reads', 'Number_of_reads_mapped_to_multiple_loci', 'Number_of_reads_mapped_to_too_many_loci', 'Number_of_splices_AT/AC', 'Number_of_splices_Annotated_sjdb', 'Number_of_splices_GC/AG', 'Number_of_splices_GT/AG', 'Number_of_splices_Non-canonical', 'Number_of_splices_Total', 'Uniquely_mapped_reads_number', 'Uniquely_mapped_reads_percentage', 'percentage_of_reads_mapped_to_multiple_loci', 'percentage_of_reads_unmapped_too_short']
-SEQ_COVARS = ['SME2MPRT', 'SMCHMPRS', 'SMNTRART',  'SMMAPRT', 'SMEXNCRT', 'SMGNSDTC',  'SMRDLGTH', 'SME1MMRT', 'SMSFLGTH', 'SMMPPD', 'SMNTERRT', 'SMRRNANM', 'SMRDTTL', 'SMVQCFL', 'SMTRSCPT', 'SMMPPDPR', 'SMNTRNRT', 'SMMPUNRT', 'SMEXPEFF', 'SMMPPDUN', 'SME2MMRT', 'SME2ANTI', 'SMALTALG', 'SME2SNSE', 'SMMFLGTH', 'SME1ANTI', 'SMSPLTRD', 'SMBSMMRT', 'SME1SNSE', 'SME1PCTS', 'SMRRNART', 'SME1MPRT', 'SME2PCTS']
+SEQ_COVARS = ['SME2MPRT', 'SMCHMPRS', 'SMNTRART',  'SMMAPRT', 'SMEXNCRT', 'SMGNSDTC',  
+              'SMRDLGTH', 'SME1MMRT', 'SMSFLGTH', 'SMMPPD', 'SMNTERRT', 'SMRRNANM', 
+              'SMRDTTL', 'SMVQCFL', 'SMTRSCPT', 'SMMPPDPR', 'SMNTRNRT', 'SMMPUNRT', 
+              'SMEXPEFF', 'SMMPPDUN', 'SME2MMRT', 'SME2ANTI', 'SMALTALG', 'SME2SNSE', 
+              'SMMFLGTH', 'SME1ANTI', 'SMSPLTRD', 'SMBSMMRT', 'SME1SNSE', 'SME1PCTS', 
+              'SMRRNART', 'SME1MPRT', 'SME2PCTS']
 
 ### GENDER has been replaced by SEX in gtex v8
 #COVAR_SUBSET = ['st_id', 'tissue_abbrev', 'SMRIN', 'DTHCODD_CAT', 'Number_of_input_reads', 'SMMNCV', 'SME2SNSE', 'SMUNPDRD', 'SMTRSCPT', 'SME2ANTI', 'SMMPPD', 'SMCHMPRS', 'SMEXNCRT', 'SMRRNART', 'SM550NRM', 'SMNTRNRT', 'Number_of_reads_mapped_to_multiple_loci', 'Number_of_splices_GT/AG', 'GENDER', 'AGE', 'RACE', 'ETHNCTY', 'HGHT', 'WGHT', 'BMI']
-COVAR_SUBSET = ['st_id', 'tissue_abbrev', 'SMRIN', 'DTHCODD_CAT', 'SMMNCV', 'SME2SNSE', 'SMUNPDRD', 'SMTRSCPT', 'SME2ANTI', 'SMMPPD', 'SMCHMPRS', 'SMEXNCRT', 'SMRRNART', 'SM550NRM', 'SMNTRNRT', 'SEX', 'AGE', 'RACE', 'ETHNCTY', 'HGHT', 'WGHT', 'BMI']
+COVAR_SUBSET = ['st_id', 'tissue_abbrev', 'SMRIN', 'DTHCODD_CAT', 'SMMNCV', 'SME2SNSE', 
+                'SMUNPDRD', 'SMTRSCPT', 'SME2ANTI', 'SMMPPD', 'SMCHMPRS', 'SMEXNCRT', 
+                'SMRRNART', 'SM550NRM', 'SMNTRNRT', 'SEX', 'AGE', 'RACE', 'ETHNCTY', 
+                'HGHT', 'WGHT', 'BMI']
 
-DISEASE_VARS = ["MHABNWBC","MHALS","MHALZDMT","MHALZHMR","MHARTHTS","MHASCITES","MHASTHMA","MHBCTINF","MHBLDDND","MHCANCERC","MHCANCERNM","MHCLLULTS","MHCLRD","MHCOCAINE5","MHCOPD","MHCOUGHU","MHCVD","MHDLYSIS","MHDMNTIA","MHDPRSSN","MHDTND72H","MHENCEPHA","MHEURO5","MHFLU","MHFNGINF","MHFVRU","MHGNRR12M","MHHEPBCT","MHHEPCCT","MHHEROIN","MHHGH","MHHIVCT","MHHIVNT","MHHMPHLIA","MHHMPHLIAB","MHHRTATT","MHHRTDIS","MHHRTDISB","MHHTN","MHINFLNE","MHIVDRG5","MHJAKOB","MHLAPTHU","MHLUPUS","MHLVRDIS","MHMENINA","MHMS","MHMSXWMA","MHMSXWMB","MHNEPH","MHNGHTSWT","MHNPHYS4W","MHNRTHEUR","MHOPNWND","MHOPPINF","MHORGNTP","MHOSTMYLTS","MHPLLABS","MHPNMIAB","MHPNMNIA","MHPRCNP","MHPRKNSN","MHPSBLDCLT","MHRA","MHRBSANML","MHREYES","MHRNLFLR","MHSARS","MHSCHZ","MHSCLRDRM","MHSDRGABS","MHSEPSIS","MHSKNSPT","MHSMLPXCT","MHSMLPXVC","MHSRC","MHSRCDSS","MHSRGHM","MHSTD","MHSTRDLT","MHSUBABSA","MHSUBABSB","MHSXMDA","MHSXMDB","MHSYPH12M","MHSZRSU","MHT1D","MHT2D","MHTBHX","MHTEMPU","MHTTCMT","MHTTOO12M","MHTTOONP","MHTXCEXP","MHUK8096","MHUREMIA","MHWKNSSU","MHWNVCT","MHWNVHX","MHWTLSUA","MHWTLSUB"]
+# not-excluded disease (actually medical history) covariates
+DISEASE_VARS = ['MHHRTDISB', 'MHNPHYS4W', 'MHWNVCT', 'MHPSBLDCLT', 'MHHGH', 'MHRA', 'MHHTN', 
+                'MHLVRDIS', 'MHSARS', 'MHHEROIN', 'MHCLRD', 'MHTBHX', 'MHSTD', 'MHT1D', 
+                'MHWTLSUB', 'MHPNMNIA', 'MHOSTMYLTS', 'MHWTLSUA', 'MHMSXWMB', 'MHMSXWMA', 
+                'MHSMLPXVC', 'MHLAPTHU', 'MHCOUGHU', 'MHHRTDIS', 'MHNEPH', 'MHMENINA', 'MHPLLABS',
+                'MHSUBABSB', 'MHSXMDA', 'MHSXMDB', 'MHSUBABSA', 'MHHEPBCT', 'MHTEMPU', 'MHTTOO12M',
+                'MHTXCEXP', 'MHPRCNP', 'MHHMPHLIAB', 'MHCOPD', 'MHEURO5', 'MHOPNWND', 'MHABNWBC',
+                'MHCOCAINE5', 'MHDLYSIS', 'MHIVDRG5', 'MHHIVNT', 'MHTTCMT', 'MHRBSANML', 'MHBLDDND',
+                'MHT2D', 'MHSRC', 'MHCLLULTS', 'MHNRTHEUR', 'MHGNRR12M', 'MHSMLPXCT', 'MHSKNSPT',
+                'MHBCTINF', 'MHUREMIA', 'MHHMPHLIA', 'MHHRTATT', 'MHPNMIAB', 'MHSRCDSS', 'MHWNVHX',
+                'MHSTRDLT', 'MHFVRU', 'MHSYPH12M', 'MHTTOONP', 'MHUK8096', 'MHORGNTP', 'MHNGHTSWT',
+                'MHOPPINF', 'MHSDRGABS', 'MHRNLFLR', 'MHASTHMA', 'MHCANCERNM', 'MHARTHTS', 
+                'MHSCLRDRM', 'MHASCITES', 'MHHEPCCT', 'MHDTND72H', 'MHSZRSU', 'MHFNGINF', 
+                'MHINFLNE', 'MHWKNSSU', 'MHSRGHM']
 
 # note: Deletion_average_length dropped
 
 dat_cov = pd.read_csv(all_cov_fn, delimiter='\t', low_memory=False)
+print "Covariate data size (sample x cov): " + str(dat_cov.shape[0]) + " x " + str(dat_cov.shape[1])
 
 # drop samples we don't want to process
-dat_cov_excl = dat_cov[dat_cov[EXCLUDE_MATCHING].apply(sum, 1) == 0]
+dat_cov_excl = dat_cov[dat_cov[EXCLUDE_MATCHING].apply(np.nansum, 1) == 0]
+print "#samples after excluding disease samples: " + str(dat_cov_excl.shape[0])
 
 dat_seq_cov = dat_cov_excl[SEQ_COVARS]
 # impute NAs in seq cov data
 if dat_seq_cov.isnull().sum().sum() > 0:
+  print "warning - imputing " + str(dat_seq_cov.isnull().sum().sum()) + " missing entries in sequence covariates data."
   dat_seq_cov_imp = pd.DataFrame(KNN(k=4).complete(dat_seq_cov))
   dat_seq_cov_imp.columns = dat_seq_cov.columns
   dat_seq_cov_imp.index = dat_seq_cov.index
@@ -59,6 +84,7 @@ else:
 
 if dat_seq_cov_imp.isnull().sum().sum() > 0:
   raise Exception('NA values in dat_seq_cov!')
+
 
 # scale
 dat_seq_cov_imp_scale = dat_seq_cov_imp.apply(lambda x: (x - x.mean())/x.std(), 0)
@@ -87,22 +113,40 @@ def can_conv(x):
 
 disease_not_str = dat_disease.apply(lambda x: all((can_conv(z) for z in x)))
 dat_disease = dat_disease[disease_not_str.index[disease_not_str]]
-disease_counts = dat_disease.apply(lambda x: sum(x) > 0)
+# remove 99 (unknown) and 98 (not reported) with NAs
+dat_disease = dat_disease.replace(to_replace=99, value=float('nan'))
+dat_disease = dat_disease.replace(to_replace=98, value=float('nan'))
+# disease with at least one patient
+disease_counts = dat_disease.apply(lambda x: np.nansum(x) > 0)
 dat_disease = dat_disease[disease_counts.index[disease_counts]]
 
-disease_jaccard = dat_disease.as_matrix()  # sam x disease
-disease_jaccard = np.dot(dat_disease.T, dat_disease)
-disease_jac_pc = pca.fit_transform(disease_jaccard)  # disease x 5
-disease_comp = np.dot(dat_disease.as_matrix(), disease_jac_pc)
+# impute NAs in disease cov data
+if dat_disease.isnull().sum().sum() > 0:
+  print "warning - imputing " + str(dat_disease.isnull().sum().sum()) + " missing entries in sequence covariates data."
+  print "size of disease cov (sample x cov): " + str(dat_disease.shape[0]) + ' x ' + str(dat_disease.shape[1])
+  dat_disease_imp = pd.DataFrame(KNN(k=5).complete(dat_disease))
+  dat_disease_imp.columns = dat_disease.columns
+  dat_disease_imp.index = dat_disease.index
+  dat_disease_imp = dat_disease_imp.apply(lambda x: [round(item) for item in x] )  # either 0 or 1
+  n_non_zero_imputation = dat_disease_imp[dat_disease.isnull()].apply(lambda x: np.nansum(x)).sum()
+  print "number of non-zero imputation: " + str(n_non_zero_imputation)
+else:
+  dat_disease_imp = dat_disease
+
+if dat_disease_imp.isnull().sum().sum() > 0:
+  raise Exception('NA values in dat_disease!')
+
+# scale and PC
+dat_disease_imp_scale = dat_disease_imp.apply(lambda x: (x - x.mean())/x.std(), 0)
+pca3 = sk.decomposition.PCA(n_components=3)
+disease_comp = pca3.fit_transform(dat_disease_imp_scale)
 
 for idx in range(3):
   dp = 'MH_PC{}'.format(1 + idx)
   dat_cov_excl[dp] = disease_comp[:, idx]
+  COVAR_SUBSET.append(dp)
 
 dat_cov_excl.to_csv(all_cov_pc_fn, sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
-
-#dceimp = pd.DataFrame(KNN(k=3).complete(dat_cov_excl[COVAR_SUBSET]))
-#dceimp.columns = dat_cov_excl[COVAR_SUBSET].columns
 dat_cov_excl[COVAR_SUBSET].to_csv(std_cov_pc_fn, sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
   
 
