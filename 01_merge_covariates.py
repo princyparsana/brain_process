@@ -64,6 +64,9 @@ def dthcodd_enc(dc):
 # #drop anything out of the freeze
 # base_attribs = base_attribs[base_attribs['SMAFRZE'] == 'USE ME']
 
+### use only RNA-seq samples [SMRDLGTH (max read length) is not null]
+base_attribs = base_attribs[base_attribs['SMRDLGTH'].notnull()]
+
 base_attribs['DTHCODD_CAT'] = [dthcodd_enc(x) for x in base_attribs['DTHCODD']]
 
 base_attribs.to_csv(all_cov_fn, sep='\t', index=False, na_rep='NA', quoting=QUOTE_ALL)
