@@ -6,8 +6,8 @@ from csv import QUOTE_ALL
 # file names
 data_dir='/scratch1/battle-fs1/ashis/progdata/brain_process/v6'
 gtex_abbrevs_fn = data_dir + '/gtex_abbrevs.csv'
-gtex_sample_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/57463/gtex/exchange/GTEx_phs000424/exchange/analysis_releases/GTEx_Analysis_2017-06-05_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SampleAttributesDS.txt'
-gtex_subject_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/57463/gtex/exchange/GTEx_phs000424/exchange/analysis_releases/GTEx_Analysis_2017-06-05_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SubjectPhenotypesDS.txt'
+gtex_sample_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SampleAttributesDS.txt'
+gtex_subject_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SubjectPhenotypesDS.txt'
 all_cov_fn = data_dir + '/covariates/20170901.all_covariates.txt'
 brain_cov_fn = data_dir + '/covariates/20170901.all_covariates.brain.txt'
 
@@ -15,17 +15,17 @@ abbrevs = pd.read_csv(gtex_abbrevs_fn)
 abbrev_dict = dict(zip(*[dict(abbrevs)[x] for x in dict(abbrevs)]))
 abbrev_dict = {v: k for k, v in abbrev_dict.items()}
 base_attribs = pd.read_csv(gtex_sample_annotation_fn, delimiter='\t', low_memory=False)
-### gtex v8 sample annotation file has no title for sample ids
-cols = base_attribs.columns.values.tolist()
-cols[0] = 'SAMPID'
-base_attribs.columns = cols
 
 base_attribs['file_prefix'] = base_attribs['SMTSD'].apply(lambda x: str(x).replace(' ', '').replace('(', '_').replace(')','_'))
 base_attribs['tissue_abbrev'] = base_attribs['SMTSD'].apply(lambda x: abbrev_dict.get(str(x), 'NA'))
 base_attribs['SUBJID'] = base_attribs['SAMPID'].apply(lambda x: '-'.join(x.split('-')[:2]))
 base_attribs['st_id'] = base_attribs['SUBJID'] + '-' + base_attribs['tissue_abbrev']
 
-base_attribs = base_attribs[base_attribs['tissue_abbrev'] != 'LEUK']
+# LEUK is a cell-line
+# BRNSPN is functionally different from other brain tissues
+# sample prep is different for 'BRNCBL', 'BRNCBH' compared to other tissues
+# <30 samples in 'CVXECTO', 'CVXENDO', 'FLLPNT', 'KDNMDL'
+base_attribs = base_attribs[[t not in ['LEUK', 'BRNSPN', 'BRNCBL', 'BRNCBH', 'CVXECTO', 'CVXENDO', 'FLLPNT', 'KDNMDL'] for t in base_attribs['tissue_abbrev']]]
 base_attribs = base_attribs[base_attribs['tissue_abbrev'].apply(str) != 'NA']
 
 ### TODO: add star covariates when available for gtex v8
@@ -67,12 +67,10 @@ def dthcodd_enc(dc):
 base_attribs['DTHCODD_CAT'] = [dthcodd_enc(x) for x in base_attribs['DTHCODD']]
 
 base_attribs.to_csv(all_cov_fn, sep='\t', index=False, na_rep='NA', quoting=QUOTE_ALL)
-
-print base_attribs.shape
+print "Size of all tissues' covarites (sample x cov): " + str(base_attribs.shape[0]) + " x " + str(base_attribs.shape[1])
 
 base_attribs = base_attribs[base_attribs['tissue_abbrev'].apply(lambda x: str(x)[:3] == 'BRN' and str(x) not in {'BRNSPN', 'BRNCBL', 'BRNCBH'})]
-
-print base_attribs.shape
+print "Size of brain tissues' covarites (sample x cov): " + str(base_attribs.shape[0]) + " x " + str(base_attribs.shape[1])
 
 base_attribs.to_csv(brain_cov_fn, sep='\t', index=False, na_rep='NA', quoting=QUOTE_ALL)
 
