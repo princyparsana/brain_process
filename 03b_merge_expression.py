@@ -1,4 +1,4 @@
-# aggregate all covariates for all samples
+# merge expression of all tissues
 import pandas as pd
 import numpy as np
 
@@ -10,25 +10,9 @@ gene_median_fn = data_dir + '/20170901.gtex_expression.gene.median_cvg.txt'
 iso_median_fn = data_dir + '/20170901.gtex_expression.isoform.median_cvg.txt'
 all_tissue_iso_expr_fn = data_dir + '/20170901.gtex.expression.isoform.alltissue.txt'
 brain_tissue_iso_expr_fn = data_dir + '/20170901.gtex_expression.isoform.brain.txt'
-
-gtex_sample_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SampleAttributesDS.txt'
+all_tissue_cov_fn = data_dir + '/covariates/20170901.all_covariates.PCs.txt'
  
-
-def _px(y):
-  print y
-  return y
-
-abbrevs = pd.read_csv(gtex_abbrevs_fn)
-abbrev_dict = dict(zip(*[dict(abbrevs)[x] for x in dict(abbrevs)]))
-abbrev_dict = {v: k for k, v in abbrev_dict.items()}
-base_attribs = pd.read_csv(gtex_sample_annotation_fn, sep='\t')
-base_attribs['file_prefix'] = base_attribs['SMTSD'].apply(lambda x: str(x).replace(' ', '').replace('(', '_').replace(')','_'))
-base_attribs['tissue_abbrev'] = base_attribs['SMTSD'].apply(lambda x: abbrev_dict.get(str(x), 'NA'))
-base_attribs['SUBJID'] = base_attribs.iloc[:,0].apply(lambda x: '-'.join(x.split('-')[:2]))
-base_attribs['st_id'] = base_attribs['SUBJID'] + '-' + base_attribs['tissue_abbrev']
-
-base_attribs = base_attribs[base_attribs['tissue_abbrev'] != 'LEUK']
-base_attribs = base_attribs[base_attribs['tissue_abbrev'].apply(str) != 'NA']
+base_attribs = pd.read_csv(all_tissue_cov_fn, sep='\t', low_memory=False)
 
 prefix_to_abbrev = {x: y for x, y in zip(*[base_attribs['file_prefix'], base_attribs['tissue_abbrev']])}
 gene_dfs, isof_dfs = list(), list()
