@@ -11,7 +11,7 @@ iso_median_fn = data_dir + '/20170901.gtex_expression.isoform.median_cvg.txt'
 all_tissue_iso_expr_fn = data_dir + '/20170901.gtex.expression.isoform.alltissue.txt'
 brain_tissue_iso_expr_fn = data_dir + '/20170901.gtex_expression.isoform.brain.txt'
 
-gtex_sample_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/57463/gtex/exchange/GTEx_phs000424/exchange/analysis_releases/GTEx_Analysis_2017-06-05_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SampleAttributesDS.txt'
+gtex_sample_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SampleAttributesDS.txt'
  
 
 def _px(y):
