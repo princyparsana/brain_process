@@ -46,6 +46,8 @@ pairPlots <- list(c('seq_pc1', 'seq_pc2'),
                   c('log_seq_pc1', 'log_seq_pc2'),
                   c('log_seq_pc3', 'log_seq_pc4'),
                   c('log_seq_pc4', 'log_seq_pc5'),
+                  c('MH_PC1', 'MH_PC2'),
+                  c('MH_PC2', 'MH_PC3'),
                   c('SMRIN', 'SMMPUNRT'))
 
 rownames(brainCov) <- make.names(brainCov$st_id)
