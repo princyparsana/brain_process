@@ -10,6 +10,8 @@ gene_median_fn = data_dir + '/20170901.gtex_expression.gene.median_cvg.txt'
 iso_median_fn = data_dir + '/20170901.gtex_expression.isoform.median_cvg.txt'
 all_tissue_iso_expr_fn = data_dir + '/20170901.gtex.expression.isoform.alltissue.txt'
 brain_tissue_iso_expr_fn = data_dir + '/20170901.gtex_expression.isoform.brain.txt'
+all_tissue_iso_pct_fn = data_dir + '/20170901.gtex.expression.isoform.percentage.alltissue.txt'
+brain_tissue_iso_pct_fn = data_dir + '/20170901.gtex_expression.isoform.percentage.brain.txt'
 all_tissue_cov_fn = data_dir + '/covariates/20170901.all_covariates.PCs.txt'
  
 base_attribs = pd.read_csv(all_tissue_cov_fn, sep='\t', low_memory=False)
@@ -69,3 +71,25 @@ del isofdf
 del isof_count_tis
 
 
+
+### merge isoforms percentage
+merged_isof_pct_df = None
+for expr_pfx in base_attribs['file_prefix'].unique():
+  print('reading and merging isoform percentage data {}'.format(expr_pfx))
+  isof_pct_file = '{}/iso_pct/{}.txt'.format(data_dir, expr_pfx)
+  isopctdf = pd.read_csv(isof_pct_file, sep='\t')
+  if isopctdf.shape[0] == 0 or isopctdf.shape[1] == 0:  # some tissues have no gene after filtering for min samples
+    continue
+  isopctdf.columns = ['transcript_id'] + [x + '-' + prefix_to_abbrev[expr_pfx] for x in isopctdf.columns[1:]]
+  if merged_isof_pct_df is None:
+    merged_isof_pct_df = isopctdf
+  else:
+    merged_isof_pct_df = merged_isof_pct_df.merge(isopctdf, on='transcript_id')
+
+
+merged_isof_pct_df.to_csv(all_tissue_iso_pct_fn, sep='\t', na_rep='NA', index=False)
+brn_samples = [x for x in merged_isof_pct_df.columns if (x == 'transcript_id' or str(x).split('-')[2][:3] == 'BRN' and str(x).split('-')[2] not in {'BRNSPN', 'BRNCBH', 'BRNCBL'})]
+merged_isof_pct_df[brn_samples].to_csv(brain_tissue_iso_pct_fn, sep='\t', na_rep='NA', index=False)
+
+del merged_isof_pct_df
+del isopctdf
