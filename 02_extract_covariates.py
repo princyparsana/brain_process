@@ -124,7 +124,7 @@ dat_disease = dat_disease[disease_counts.index[disease_counts]]
 
 # impute NAs in disease cov data
 if dat_disease.isnull().sum().sum() > 0:
-  print "warning - imputing " + str(dat_disease.isnull().sum().sum()) + " missing entries in sequence covariates data."
+  print "warning - imputing " + str(dat_disease.isnull().sum().sum()) + " missing entries in disease (MH) covariates data."
   print "size of disease cov (sample x cov): " + str(dat_disease.shape[0]) + ' x ' + str(dat_disease.shape[1])
   dat_disease_imp = pd.DataFrame(KNN(k=5).complete(dat_disease))
   dat_disease_imp.columns = dat_disease.columns
