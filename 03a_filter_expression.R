@@ -27,6 +27,7 @@ min_tpm = 1
 min_count = 6
 min_samples = 10
 min_tissue = 1
+max_isopct_dominance = 95
 
 ### create all output directories
 for (dir_path in c(gene_tpm_out_dir, gene_fc_out_dir, iso_tpm_out_dir, iso_fc_out_dir, iso_pct_out_dir, initial_gene_tpm_out_dir, initial_gene_fc_out_dir, initial_iso_tpm_out_dir, initial_iso_fc_out_dir, initial_iso_pct_out_dir))
@@ -151,7 +152,8 @@ if(!file.exists(filter_data_store_fn))
     iso_pct_df = iso_pct_df[isos_to_include,]
     # save initial iso pct
     write_df(iso_pct_df, file = initial_iso_pct_out_fn)
-    # filter isoforms based on tpm and count
+    # filter isoforms based on tpm and count and isoform dominance
+    iso_pct_df = filter_on_ir_dominance(expr.mat = iso_pct_df, ir.mat = iso_pct_df, annot.trans = iso_to_gene_annot, max.dominant.ir = max_isopct_dominance, n_1 = FALSE)
     store[['iso_pct_features']][[tissue]] = intersect(rownames(iso_pct_df), store[['iso_tpm_features']][[tissue]] )
   }
   
