@@ -103,7 +103,9 @@ for idx in range(5):
   dat_cov_excl[lsp] = log_seq_pcs[:, idx]
   COVAR_SUBSET.append(sp)
 
-dat_disease = dat_cov_excl[DISEASE_VARS]
+dat_disease = dat_cov_excl[['SUBJID'] + DISEASE_VARS]
+dat_disease = dat_disease.groupby('SUBJID').first()    # subject-level
+
 def can_conv(x):
   try:
     float(x)
@@ -140,11 +142,12 @@ if dat_disease_imp.isnull().sum().sum() > 0:
 dat_disease_imp_scale = dat_disease_imp.apply(lambda x: (x - x.mean())/x.std(), 0)
 pca3 = sk.decomposition.PCA(n_components=3)
 disease_comp = pca3.fit_transform(dat_disease_imp_scale)
+disease_comp_df = pd.DataFrame(disease_comp)
+disease_comp_df.columns = ['MH_PC{}'.format(1 + idx) for idx in range(disease_comp_df.shape[1]) ]
+disease_comp_df['SUBJID'] = dat_disease_imp.index
 
-for idx in range(3):
-  dp = 'MH_PC{}'.format(1 + idx)
-  dat_cov_excl[dp] = disease_comp[:, idx]
-  COVAR_SUBSET.append(dp)
+dat_cov_excl = dat_cov_excl.merge(disease_comp_df, on='SUBJID')
+COVAR_SUBSET.extend(disease_comp_df.columns.tolist())
 
 dat_cov_excl.to_csv(all_cov_pc_fn, sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
 dat_cov_excl[COVAR_SUBSET].to_csv(std_cov_pc_fn, sep='\t', na_rep='NA', index=False, quoting=QUOTE_ALL)
