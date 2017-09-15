@@ -1,9 +1,9 @@
 data_dir='/scratch1/battle-fs1/ashis/progdata/brain_process/v6'
 cov_pc_fn = paste0(data_dir, '/covariates/20170901.all_covariates.PCs.brain.txt')
-gene_tpm_outlier_pc_fn = paste0(data_dir, '/20170901.gene.sample.outlier.pc.values.txt')
-iso_tpm_outlier_pc_fn = paste0(data_dir, '/20170901.isoform.sample.outlier.pc.values.txt')
-iso_pct_outlier_pc_fn = paste0(data_dir, '/20170901.isoform.percentage.sample.outlier.pc.values.txt')
-outlier_out_fn = paste0(data_dir, '/20170901.outlier_samples.txt')
+gene_tpm_outlier_pc_fn = paste0(data_dir, '/20170901.gene.sample.outlier.pc.values.r1.txt')
+iso_tpm_outlier_pc_fn = paste0(data_dir, '/20170901.isoform.sample.outlier.pc.values.r1.txt')
+iso_pct_outlier_pc_fn = paste0(data_dir, '/20170901.isoform.percentage.sample.outlier.pc.values.r1.txt')
+outlier_out_fn = paste0(data_dir, '/20170901.outlier_samples_r1.txt')
 
 gene.vals <- read.table(gene_tpm_outlier_pc_fn, header=T)
 isof.vals <- read.table(iso_tpm_outlier_pc_fn, header=T)
@@ -26,7 +26,6 @@ gene.pc.outliers <- rownames(gene.vals)[c(
   which(gene.vals$BRNHIP.PC3 < -0.25),
   which(gene.vals$BRNHYP.PC5 < -0.4)
 )]
-
 
 isof.pc.outliers <- rownames(isof.vals)[c(
   which(isof.vals$BRNCDT.PC5 < -0.4),
@@ -83,11 +82,11 @@ isofpct.pc.outliers <- rownames(isofpct.vals)[c(
 
 combined_outliers <- sort(unique(gsub('\\.', '-', make.names(c(covar.outliers, gene.pc.outliers, isof.pc.outliers, isofpct.pc.outliers)))))
 
-# if a subject is outlier in 1/3 of tissues it was measured, exclude the subject in other tissues as well.
+# if a subject is outlier in half of tissues the subject was analyzed, exclude the subject in other tissues as well.
 n_tissue_outlier_per_indiv <- table(covars$SUBJID[covars$st_id %in% combined_outliers])
 n_tissue_measured_per_indiv <- sapply(names(n_tissue_outlier_per_indiv), function(subj) length(unique(covars[covars$SUBJID==subj, 'SMTSD'])))
 tissue_outlier_fraction_per_indiv <- n_tissue_outlier_per_indiv[names(n_tissue_measured_per_indiv)] / n_tissue_measured_per_indiv
-indiv_to_exclude = names(tissue_outlier_fraction_per_indiv)[tissue_outlier_fraction_per_indiv>0.33]
+indiv_to_exclude = names(tissue_outlier_fraction_per_indiv)[tissue_outlier_fraction_per_indiv>=0.5]
 samples_to_exclude = covars$st_id[covars$SUBJID %in% indiv_to_exclude]
 
 outlier.samples <- sort(unique(c(combined_outliers, samples_to_exclude)))
