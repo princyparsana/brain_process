@@ -1,4 +1,5 @@
 library(argparser)
+library(svd)
 source('io_util.R')
 
 args <- arg_parser("program");
@@ -23,12 +24,16 @@ args <- add_argument(args, '-expr_filtered',
 args <- add_argument(args, '-pltdir',
                      help='directory to save plots',
                      default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/outlier_plots/brain_genes')
+args <- add_argument(args, '-fast.svd',
+                     help='Use fast svd (propack.svd)',
+                     default=FALSE)
 
 argv = parse_args(args)
 OUTLIER_FILES = strsplit(argv$outlier, split = ",")[[1]]
 brainCovarFile <- argv$cov
 brainExprFile <- argv$expr
 geneMedExprFile <- argv$med
+useFastSVD <- argv$fast.svd
 
 outlier_pc_fn <- argv$outlier_pc
 expr_filtered_fn <- argv$expr_filtered
@@ -115,7 +120,12 @@ for ( pair in pairPlots ) {
 dev.off()
 
 pdf(sprintf('%s/joint_pcs.pdf', base_dir))
-brn.svd <- svd(t(scale(t(log2(1e-3 + brainExpr[use.genes,])))), nu=1, nv=6)
+if(useFastSVD==FALSE){
+  brn.svd <- svd(t(scale(t(log2(1e-3 + brainExpr[use.genes,])))), nu=1, nv=6)
+} else {
+  brn.svd <- propack.svd(t(scale(t(log2(1e-3 + brainExpr[use.genes,])))), neig = 6)
+}
+
 colnames(brn.svd$v) <- sprintf('WBPC%d', 1:6)
 pcdf <- data.frame(brn.svd$v)
 pcdf$tissue <- brainCov$tissue_abbrev
@@ -131,7 +141,11 @@ rownames(samp.values) <- colnames(brainExpr)
 for ( tissue in unique(brainCov$tissue_abbrev) ) {
   t.samples <- rownames(brainCov)[brainCov$tissue_abbrev == tissue]
   tis.expr <- t(scale(t(log(1e-2 + brainExpr[use.genes,t.samples]))))
-  tis.svd <- svd(tis.expr, nu=1, nv=6)
+  if(useFastSVD == FALSE){
+    tis.svd <- svd(tis.expr, nu=1, nv=6)
+  } else {
+    tis.svd <- propack.svd(tis.expr, neig = 6)
+  }
   colnames(tis.svd$v) <- sprintf('%s.PC%d', tissue, 1:6)
   pdf(sprintf('%s/expression.pca.%s.pdf', base_dir, tissue))
   plot(tis.svd$v[,1], tis.svd$v[,2], pch=16, xlab='PC1', ylab='PC2', main=tissue)
