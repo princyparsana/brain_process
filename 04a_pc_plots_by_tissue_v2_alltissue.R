@@ -178,12 +178,23 @@ dev.off()
 samp.values <- data.frame(pcdf)
 rownames(samp.values) <- colnames(b.expr.scaled)
 
-rm(b.expr.scaled)
+rm(list = c('b.expr.scaled', 'pcdf', 'gp', 'brn.svd'))
 gc(reset = T)
 
 print('loading brainExpr from disk ...')
 load(brainExpr.fn)  # reload brainExpr into memory
 file.remove(brainExpr.fn)  # delete store
+
+print('saving selected dimensions ...')
+selected_dimensions = list()
+selected_dimensions[['genes']] = rownames(brainExpr)[use.genes]
+selected_dimensions[['samples']] = colnames(brainExpr)
+selected_dimensions_fn = paste0(base_dir,'/selected_dimensions.RData')
+save(list = c('selected_dimensions'), file = selected_dimensions_fn)
+rm(selected_dimensions)
+
+write.table(brainExpr[use.genes,], file= expr_filtered_fn, quote=F, sep='\t')
+gc(reset = T)
 
 for ( tissue in unique(brainCov$tissue_abbrev) ) {
   print(paste0('plotting expression PCs - ', tissue))
@@ -205,8 +216,8 @@ for ( tissue in unique(brainCov$tissue_abbrev) ) {
   pcdf[t.samples,] <- tis.svd$v
   colnames(pcdf) <- colnames(tis.svd$v)
   samp.values <- cbind(samp.values, pcdf)
+  rm(list=c('pcdf', 'tis.expr', 'tis.svd'))
   gc(reset=T)
 }
 
 write.table(samp.values, file= outlier_pc_fn, quote=F)
-write.table(brainExpr[use.genes,], file= expr_filtered_fn, quote=F, sep='\t')
