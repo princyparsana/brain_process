@@ -156,3 +156,117 @@ Rscript 04a_pc_plots_by_tissue.R -outlier "$outlier" -cov $brain_cov_fn -expr $b
 # a few samples could be called outliers from 5th or 6th PC of isoform percentage,
 # but that could be too strict.
 
+
+### step-4 - round1 (all tissues)
+outlier=""
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_gene_expr_fn="$data_dir/20170901.gtex.expression.gene.alltissue.txt"
+gene_median_count_fn="$data_dir/20170901.gtex_expression.gene.median_cvg.txt"
+alltissue_gene_outlier_pc_fn="$data_dir/20170901.gene.sample.outlier.pc.values.r1.alltissue.txt"
+alltissue_gene_expr_filtered_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
+alltissue_gene_outlier_plot_dir="$data_dir/outlier_plots/alltissue_genes_r1"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_gene_expr_fn -med $gene_median_count_fn -outlier_pc $alltissue_gene_outlier_pc_fn -expr_filtered $alltissue_gene_expr_filtered_fn -pltdir $alltissue_gene_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_gene_r1.log 
+
+outlier=""
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_iso_expr_fn="$data_dir/20170901.gtex.expression.isoform.alltissue.txt"
+iso_median_count_fn="$data_dir/20170901.gtex_expression.isoform.median_cvg.txt"
+alltissue_iso_outlier_pc_fn="$data_dir/20170901.isoform.sample.outlier.pc.values.r1.alltissue.txt"
+alltissue_iso_expr_filtered_fn="$data_dir/20170901.gtex_expression.isoform.alltissue.good_genes.outlier_rm.txt"
+alltissue_iso_outlier_plot_dir="$data_dir/outlier_plots/alltissue_isoforms_r1"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_iso_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_iso_outlier_pc_fn -expr_filtered $alltissue_iso_expr_filtered_fn -pltdir $alltissue_iso_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_iso_r1.log 
+
+outlier=""
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_isopct_expr_fn="$data_dir/20170901.gtex.expression.isoform.percentage.alltissue.txt"
+iso_median_count_fn="$data_dir/20170901.gtex_expression.isoform.median_cvg.txt"
+alltissue_isopct_outlier_pc_fn="$data_dir/20170901.isoform.percentage.sample.outlier.pc.values.r1.alltissue.txt"
+alltissue_isopct_expr_filtered_fn="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.txt"
+alltissue_isopct_outlier_plot_dir="$data_dir/outlier_plots/alltissue_isoforms_percentage_r1"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_isopct_outlier_pc_fn -expr_filtered $alltissue_isopct_expr_filtered_fn -pltdir $alltissue_isopct_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_isopct_r1.log
+
+# select outlier alltissue samples
+Rscript 04b_list_outliers_alltissue_r1.R
+
+### step-4 - round2 (all tissues)
+
+outlier="$data_dir/20170901.outlier_samples_alltissue_r1.txt"
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_gene_expr_fn="$data_dir/20170901.gtex.expression.gene.alltissue.txt"
+gene_median_count_fn="$data_dir/20170901.gtex_expression.gene.median_cvg.txt"
+alltissue_gene_outlier_pc_fn="$data_dir/20170901.gene.sample.outlier.pc.values.r2.alltissue.txt"
+alltissue_gene_expr_filtered_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
+alltissue_gene_outlier_plot_dir="$data_dir/outlier_plots/alltissue_genes_r2"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_gene_expr_fn -med $gene_median_count_fn -outlier_pc $alltissue_gene_outlier_pc_fn -expr_filtered $alltissue_gene_expr_filtered_fn -pltdir $alltissue_gene_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_gene_r2.log 
+
+outlier="$data_dir/20170901.outlier_samples_alltissue_r1.txt"
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_iso_expr_fn="$data_dir/20170901.gtex.expression.isoform.alltissue.txt"
+iso_median_count_fn="$data_dir/20170901.gtex_expression.isoform.median_cvg.txt"
+alltissue_iso_outlier_pc_fn="$data_dir/20170901.isoform.sample.outlier.pc.values.r2.alltissue.txt"
+alltissue_iso_expr_filtered_fn="$data_dir/20170901.gtex_expression.isoform.alltissue.good_genes.outlier_rm.txt"
+alltissue_iso_outlier_plot_dir="$data_dir/outlier_plots/alltissue_isoforms_r2"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_iso_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_iso_outlier_pc_fn -expr_filtered $alltissue_iso_expr_filtered_fn -pltdir $alltissue_iso_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_iso_r2.log 
+
+outlier="$data_dir/20170901.outlier_samples_alltissue_r1.txt"
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_isopct_expr_fn="$data_dir/20170901.gtex.expression.isoform.percentage.alltissue.txt"
+iso_median_count_fn="$data_dir/20170901.gtex_expression.isoform.median_cvg.txt"
+alltissue_isopct_outlier_pc_fn="$data_dir/20170901.isoform.percentage.sample.outlier.pc.values.r2.alltissue.txt"
+alltissue_isopct_expr_filtered_fn="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.txt"
+alltissue_isopct_outlier_plot_dir="$data_dir/outlier_plots/alltissue_isoforms_percentage_r2"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_isopct_outlier_pc_fn -expr_filtered $alltissue_isopct_expr_filtered_fn -pltdir $alltissue_isopct_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_isopct_r2.log
+
+# select outlier alltissue samples
+Rscript 04b_list_outliers_alltissue_r2.R
+
+
+### step-4 - round3 (all tissues)
+
+outlier="$data_dir/20170901.outlier_samples_alltissue_r2.txt"
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_gene_expr_fn="$data_dir/20170901.gtex.expression.gene.alltissue.txt"
+gene_median_count_fn="$data_dir/20170901.gtex_expression.gene.median_cvg.txt"
+alltissue_gene_outlier_pc_fn="$data_dir/20170901.gene.sample.outlier.pc.values.r3.alltissue.txt"
+alltissue_gene_expr_filtered_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
+alltissue_gene_outlier_plot_dir="$data_dir/outlier_plots/alltissue_genes_r3"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_gene_expr_fn -med $gene_median_count_fn -outlier_pc $alltissue_gene_outlier_pc_fn -expr_filtered $alltissue_gene_expr_filtered_fn -pltdir $alltissue_gene_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_gene_r3.log 
+
+outlier="$data_dir/20170901.outlier_samples_alltissue_r2.txt"
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_iso_expr_fn="$data_dir/20170901.gtex.expression.isoform.alltissue.txt"
+iso_median_count_fn="$data_dir/20170901.gtex_expression.isoform.median_cvg.txt"
+alltissue_iso_outlier_pc_fn="$data_dir/20170901.isoform.sample.outlier.pc.values.r3.alltissue.txt"
+alltissue_iso_expr_filtered_fn="$data_dir/20170901.gtex_expression.isoform.alltissue.good_genes.outlier_rm.txt"
+alltissue_iso_outlier_plot_dir="$data_dir/outlier_plots/alltissue_isoforms_r3"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_iso_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_iso_outlier_pc_fn -expr_filtered $alltissue_iso_expr_filtered_fn -pltdir $alltissue_iso_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_iso_r3.log 
+
+outlier="$data_dir/20170901.outlier_samples_alltissue_r2.txt"
+alltissue_cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+alltissue_isopct_expr_fn="$data_dir/20170901.gtex.expression.isoform.percentage.alltissue.txt"
+iso_median_count_fn="$data_dir/20170901.gtex_expression.isoform.median_cvg.txt"
+alltissue_isopct_outlier_pc_fn="$data_dir/20170901.isoform.percentage.sample.outlier.pc.values.r3.alltissue.txt"
+alltissue_isopct_expr_filtered_fn="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.txt"
+alltissue_isopct_outlier_plot_dir="$data_dir/outlier_plots/alltissue_isoforms_percentage_r3"
+fast_svd="TRUE"
+
+Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_isopct_outlier_pc_fn -expr_filtered $alltissue_isopct_expr_filtered_fn -pltdir $alltissue_isopct_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_isopct_r3.log
+
+# select outlier alltissue samples
+#Rscript 04b_list_outliers_alltissue_r3.R
