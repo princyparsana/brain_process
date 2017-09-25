@@ -22,7 +22,7 @@ args <- add_argument(args, '-min_sample',
                      default=1000000)
 args <- add_argument(args, '-o',
                      help='output prefix',
-                     default="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/variance_explained/variance_explained_gene")
+                     default="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/variance_explained/gene")
 
 argv = parse_args(args)
 expr_fn <- argv$expr
@@ -31,8 +31,10 @@ do_log_transform <- argv$log
 min_samples_per_subject <- argv$min_sample
 out_prefix <- argv$o
 
-var_explained_out_fn = paste0(out_prefix, ".txt")
-plt_fn = paste0(out_prefix, ".pdf")
+var_explained_by_pc_out_fn = paste0(out_prefix, "_variance_explained_by_pc.txt")
+var_explained_by_pc_plt_fn = paste0(out_prefix, "_variance_explained_by_pc.pdf")
+var_explained_by_cov_out_fn = paste0(out_prefix, "_variance_explained_by_cov.txt")
+var_explained_by_cov_plt_fn = paste0(out_prefix, "_variance_explained_by_cov.pdf")
 
 numeric_covariates = c("SMRIN", "SMTSISCH", "TRISCHD",
                        "seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5",
@@ -59,10 +61,18 @@ if(as.character(do_log_transform) == "TRUE"){
 
 # compute expression PCs
 expr_mat_transposed = scale(t(expr_df))   # sample x gene
-expr_svd = propack.svd(expr_mat_transposed, neig = 20)
-pcs = t(expr_svd$u)
+expr_svd = propack.svd(expr_mat_transposed, neig = min(dim(expr_df)))
+pcs = t(expr_svd$u[,1:20])
 colnames(pcs) = colnames(expr_df)
 rownames(pcs) = paste0('pc', 1:nrow(pcs))
+
+# variance explained by PCs
+var_exp_by_pc = (expr_svd$d^2)/sum((expr_svd$d^2))
+write_df(data.frame(variance_explained=var_exp_by_pc), file = var_explained_by_pc_out_fn)
+pdf(var_explained_by_pc_plt_fn)
+plot(var_exp_by_pc, xlim = c(0, 20), type = "b", pch = 16, xlab = "Principal Components", ylab = "Variance Explained")
+dev.off()
+
 
 ### read covariate and select covariates
 cov_df = read_df(cov_fn, header = T)
@@ -108,11 +118,11 @@ var_part_df = data.frame(row.names = rownames(pcs))
 for (pred in names(varPart)){
   var_part_df[,pred] = varPart[[pred]]
 }
-write_df(var_part_df, file = var_explained_out_fn)
+write_df(var_part_df, file = var_explained_by_cov_out_fn)
 
 # plot variance explained
 col_template <- colorRampPalette(c("white","white", "white", "blue", "black"))
-pdf(plt_fn)
+pdf(var_explained_by_cov_plt_fn)
 corrplot(as.matrix(var_part_df)*100, is.corr=F, col = col_template(200), method = "circle", title = "Percent variance explained")
 corrplot(as.matrix(var_part_df)*100, is.corr=F, col = col_template(200), method = "number", number.digits=1, number.cex = 0.7, title = "Percent variance explained")
 dev.off()
