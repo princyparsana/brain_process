@@ -54,7 +54,7 @@ sample_line = readLines(expr_fn, n = 1)
 colnames(expr_df) = unlist(strsplit(sample_line, split = '\t'))
 
 if(as.character(do_log_transform) == "TRUE"){
-  expr_df = log(1e-3+expr_df)
+  expr_df = log2(1e-3+expr_df)
 }
 
 # compute expression PCs
