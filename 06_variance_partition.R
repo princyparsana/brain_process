@@ -18,8 +18,8 @@ args <- add_argument(args, '-log',
                      help='log transform - log(1e-3+x)',
                      default=TRUE)
 args <- add_argument(args, '-min_sample',
-                     help='SUBJID is not used as a predictor if it has less than min_sample samples',
-                     default=1000000)
+                     help='In a categorical variable, a category must have a min number of samples, otherwise set to UNKNOWN for linear regression',
+                     default=15)
 args <- add_argument(args, '-o',
                      help='output prefix',
                      default="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/variance_explained/gene")
@@ -28,7 +28,7 @@ argv = parse_args(args)
 expr_fn <- argv$expr
 cov_fn <- argv$cov
 do_log_transform <- argv$log
-min_samples_per_subject <- argv$min_sample
+min_samples <- argv$min_sample
 out_prefix <- argv$o
 
 var_explained_by_pc_out_fn = paste0(out_prefix, "_variance_explained_by_pc.txt")
@@ -43,7 +43,6 @@ numeric_covariates = c("SMRIN", "SMTSISCH", "TRISCHD",
                        "DTHRFGD", "TRCCLMPD", "TRCHSTIND", "TRCRTMP")
 
 categorical_covariates = c("DTHCODD_CAT",  # factor
-                           "SUBJID",  # factor
                            "COHORT", "ETHNCTY", "SEX", "RACE", # factor
                            "DTHHRDY", "DTHCAT", "DTHCLS", "DTHATPSY", # factor
                            "DTHRFG", "DTHICD10", "TRAMP", 
@@ -81,9 +80,9 @@ cov_df = cov_df[colnames(expr_df),]
 
 # include subject id as a predictor only if there are at least 5 samples from it
 # otherwise the subject could capture combined effect of sex/ethnicity/race etc.
-sample_per_subject = tapply(cov_df$st_id, cov_df$SUBJID, length)
-sample_owner_count = sample_per_subject[cov_df$SUBJID]
-cov_df[sample_owner_count<min_samples_per_subject, 'SUBJID'] = NA
+# sample_per_subject = tapply(cov_df$st_id, cov_df$SUBJID, length)
+# sample_owner_count = sample_per_subject[cov_df$SUBJID]
+# cov_df[sample_owner_count<min_samples_per_subject, 'SUBJID'] = NA
 
 num_cov_df = cov_df[,numeric_covariates]
 cat_cov_df = cov_df[,categorical_covariates]
@@ -93,8 +92,20 @@ num_cov_df = num_cov_df[,n_na_num==0]
 n_uniq_num = sapply(num_cov_df, function(x) length(unique(x)))
 num_cov_df = num_cov_df[,n_uniq_num>1]
 
-n_na_cat = sapply(cat_cov_df, function(x) sum(is.na(x)))
-cat_cov_df = cat_cov_df[,n_na_cat < 0.5 * nrow(cat_cov_df)]
+cat_cov_df[is.na(cat_cov_df)] = "UNKNOWN"
+cat_cov_df[cat_cov_df=="99"] = "UNKNOWN"
+cat_cov_df[cat_cov_df=="99.0"] = "UNKNOWN"
+cat_cov_df[cat_cov_df=="98"] = "UNKNOWN"
+cat_cov_df[cat_cov_df=="98.0"] = "UNKNOWN"
+
+for(cov in categorical_covariates){
+  item_count = table(cat_cov_df[,cov])
+  items_to_avoid = names(item_count[item_count<min_samples])
+  cat_cov_df[cat_cov_df[,cov] %in% items_to_avoid, cov] = "UNKNOWN"
+  if(length(items_to_avoid) < 10)
+    print(paste(c(cov, ":", items_to_avoid), sep = " ", collapse = " " ))
+}
+
 n_uniq_cat = sapply(cat_cov_df, function(x) length(unique(x)))
 cat_cov_df = cat_cov_df[,n_uniq_cat>1]
 
