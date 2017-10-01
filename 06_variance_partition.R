@@ -20,6 +20,9 @@ args <- add_argument(args, '-log',
 args <- add_argument(args, '-min_sample',
                      help='In a categorical variable, a category must have a min number of samples, otherwise set to UNKNOWN for linear regression',
                      default=15)
+args <- add_argument(args, '-interaction',
+                     help='interaction terms to add with regular linear model',
+                     default="")
 args <- add_argument(args, '-o',
                      help='output prefix',
                      default="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/variance_explained/gene")
@@ -29,6 +32,7 @@ expr_fn <- argv$expr
 cov_fn <- argv$cov
 do_log_transform <- argv$log
 min_samples <- argv$min_sample
+interaction_str <- argv$interaction
 out_prefix <- argv$o
 
 var_explained_by_pc_out_fn = paste0(out_prefix, "_variance_explained_by_pc.txt")
@@ -36,18 +40,18 @@ var_explained_by_pc_plt_fn = paste0(out_prefix, "_variance_explained_by_pc.pdf")
 var_explained_by_cov_out_fn = paste0(out_prefix, "_variance_explained_by_cov.txt")
 var_explained_by_cov_plt_fn = paste0(out_prefix, "_variance_explained_by_cov.pdf")
 
-numeric_covariates = c("SMRIN", "SMTSISCH", "TRISCHD",
+numeric_covariates = c("AGE", "BMI", "HGHT", "WGHT", "DTHRFGD", "DTHVNTD", 
+                       "MH_PC1", "MH_PC2", "MH_PC3", "TRCCLMPD", "TRCHSTIND", 
+                       "TRCRTMP", "TRISCHD", "TRDNISCH", 
+                       "SMRIN", "SMTSISCH", "SMTSPAX",
                        "seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5",
-                       "MH_PC1", "MH_PC2", "MH_PC3", 
-                       "AGE", "BMI", "HGHT",
-                       "DTHRFGD", "TRCCLMPD", "TRCHSTIND", "TRCRTMP")
-
-categorical_covariates = c("DTHCODD_CAT",  # factor
-                           "COHORT", "ETHNCTY", "SEX", "RACE", # factor
-                           "DTHHRDY", "DTHCAT", "DTHCLS", "DTHATPSY", # factor
-                           "DTHRFG", "DTHICD10", "TRAMP", 
-                           "SMATSSCR", "SMNABTCH", "SMGEBTCH",
-                           "SMTSD", "SMSTYP")
+                       "MH_PC1", "MH_PC2", "MH_PC3")
+categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE", 
+                           "DTHATPSY", "DTHCODD_CAT", "DTHHRDY", 
+                           "DTHRFG", "DTHVNT", "DTHCLS", "DTHTYP", "DTHCAT", "DTHICD10",
+                           "TRAMP", "TRORGNS", 
+                           "SMNABTCH", "SMGEBTCH", "SMCAT", "SMCENTER", 
+                           "SMOMTRLTP", "SMSTYP", "SMTSD", "ANALYTE_TYPE", "SMTORMVE")
 
 ## read expr
 expr_df = read_df(expr_fn, header = F)
@@ -119,6 +123,8 @@ for(cov_name in colnames(cat_cov_df))
 num_form_str = paste(colnames(num_cov_df), collapse=' + ')
 cat_form_str = paste("(1|", colnames(cat_cov_df), ")", collapse=' + ')
 form_str = paste("~ ", num_form_str, " + ", cat_form_str)
+if(nchar(interaction_str) > 0)
+  form_str = paste(form_str, " + ", interaction_str)
 form = formula(form_str)
 
 # run variance partition

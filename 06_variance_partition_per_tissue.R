@@ -40,28 +40,18 @@ var_explained_by_pc_plt_fn = paste0(out_prefix, "_variance_explained_by_pc.pdf")
 var_explained_by_cov_out_fn = paste0(out_prefix, "_variance_explained_by_cov.txt")
 var_explained_by_cov_plt_fn = paste0(out_prefix, "_variance_explained_by_cov.pdf")
 
-numeric_covariates = c("SMRIN", "SMTSISCH", "TRISCHD",
+numeric_covariates = c("AGE", "BMI", "HGHT", "WGHT", "DTHRFGD", "DTHVNTD", 
+                       "MH_PC1", "MH_PC2", "MH_PC3", "TRCCLMPD", "TRCHSTIND", 
+                       "TRCRTMP", "TRISCHD", "TRDNISCH", 
+                       "SMRIN", "SMTSISCH", "SMTSPAX",
                        "seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5",
-                       "MH_PC1", "MH_PC2", "MH_PC3", 
-                       "AGE", "BMI", "HGHT",
-                       "DTHRFGD", "TRCCLMPD", "TRCHSTIND", "TRCRTMP")
-
-categorical_covariates = c("DTHCODD_CAT",  # factor
-                           "COHORT", "ETHNCTY", "SEX", "RACE", # factor
-                           "DTHHRDY", "DTHCAT", "DTHCLS", "DTHATPSY", # factor
-                           "DTHRFG", "DTHICD10", "TRAMP", 
-                           "SMATSSCR", "SMNABTCH", "SMGEBTCH",
-                           "SMSTYP")
-
-# categorical_covariates = c("DTHATPSY", "DTHCODD_CAT", "DTHHRDY", "DTHRFG",
-#                            "ETHNCTY", "RACE", "SEX",
-#                            "SMGEBTCH","SMNABTCH")
-# categorical_covariates = c("COHORT", 
-#                            "DTHCAT", "DTHCLS",
-#                            "DTHICD10", "TRAMP", 
-#                            "SMATSSCR",
-#                            "SMSTYP")
-
+                       "MH_PC1", "MH_PC2", "MH_PC3")
+categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE", 
+                           "DTHATPSY", "DTHCODD_CAT", "DTHHRDY", 
+                           "DTHRFG", "DTHVNT", "DTHCLS", "DTHTYP", "DTHCAT", "DTHICD10",
+                           "TRAMP", "TRORGNS", 
+                           "SMNABTCH", "SMGEBTCH", "SMCAT", "SMCENTER", 
+                           "SMOMTRLTP", "SMSTYP", "SMTSD", "ANALYTE_TYPE", "SMTORMVE")
 
 ## read expr
 expr_df = read_df(expr_fn, header = F)
@@ -117,6 +107,7 @@ cat_cov_df[cat_cov_df=="99"] = "UNKNOWN"
 cat_cov_df[cat_cov_df=="99.0"] = "UNKNOWN"
 cat_cov_df[cat_cov_df=="98"] = "UNKNOWN"
 cat_cov_df[cat_cov_df=="98.0"] = "UNKNOWN"
+
 
 for(cov in categorical_covariates){
   item_count = table(cat_cov_df[,cov])
