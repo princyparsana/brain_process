@@ -44,8 +44,7 @@ numeric_covariates = c("AGE", "BMI", "HGHT", "WGHT", "DTHRFGD", "DTHVNTD",
                        "MH_PC1", "MH_PC2", "MH_PC3", "TRCCLMPD", "TRCHSTIND", 
                        "TRCRTMP", "TRISCHD", "TRDNISCH", 
                        "SMRIN", "SMTSISCH", "SMTSPAX",
-                       "seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5",
-                       "MH_PC1", "MH_PC2", "MH_PC3")
+                       "seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5")
 categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE", 
                            "DTHATPSY", "DTHCODD_CAT", "DTHHRDY", 
                            "DTHRFG", "DTHVNT", "DTHCLS", "DTHTYP", "DTHCAT", "DTHICD10",
@@ -115,7 +114,7 @@ cat_cov_df = cat_cov_df[,n_uniq_cat>1]
 
 cov_df = cbind(num_cov_df, cat_cov_df)
 for(cov_name in colnames(num_cov_df))
-  cov_df[,cov_name] = as.numeric(cov_df[,cov_name])
+  cov_df[,cov_name] = scale(as.numeric(cov_df[,cov_name]))
 for(cov_name in colnames(cat_cov_df))
   cov_df[,cov_name] = factor(cov_df[,cov_name])
 
