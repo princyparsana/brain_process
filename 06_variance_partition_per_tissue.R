@@ -40,9 +40,9 @@ var_explained_by_pc_plt_fn = paste0(out_prefix, "_variance_explained_by_pc.pdf")
 var_explained_by_cov_out_fn = paste0(out_prefix, "_variance_explained_by_cov.txt")
 var_explained_by_cov_plt_fn = paste0(out_prefix, "_variance_explained_by_cov.pdf")
 
-numeric_covariates = c("AGE", "BMI", "HGHT", "WGHT", "DTHRFGD", "DTHVNTD", 
-                       "MH_PC1", "MH_PC2", "MH_PC3", "TRCCLMPD", "TRCHSTIND", 
-                       "TRCRTMP", "TRISCHD", "TRDNISCH", 
+numeric_covariates = c("AGE", "HGHT", "WGHT", "DTHRFGD", "DTHVNTD", 
+                       "MH_PC1", "MH_PC2", "MH_PC3", "TRCCLMPD",
+                       "TRCRTMP",
                        "SMRIN", "SMTSISCH", "SMTSPAX",
                        "seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5")
 categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE", 
@@ -75,6 +75,7 @@ if(as.character(do_log_transform) == "TRUE"){
 expr_mat_transposed = scale(t(expr_df))   # sample x gene
 expr_svd = propack.svd(expr_mat_transposed, neig = min(dim(expr_df)))
 pcs = t(expr_svd$u[,1:20])
+pcs = t(scale(t(pcs)))
 colnames(pcs) = colnames(expr_df)
 rownames(pcs) = paste0('pc', 1:nrow(pcs))
 
