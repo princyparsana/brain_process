@@ -23,6 +23,15 @@ args <- add_argument(args, '-min_sample',
 args <- add_argument(args, '-interaction',
                      help='interaction terms to add with regular linear model',
                      default="")
+args <- add_argument(args, '-model',
+                     help='percent variance explained model. lm: lienar model, variancepartition: variancePartition model',
+                     default="lm")
+args <- add_argument(args, '-na',
+                     help='string to replace NA with. if empty string, do not replace NA',
+                     default="UNKNOWN")
+args <- add_argument(args, '-tissue',
+                     help='tissue abbreviation. if empty string, use all tissues',
+                     default="")
 args <- add_argument(args, '-o',
                      help='output prefix',
                      default="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/variance_explained/gene")
@@ -33,6 +42,9 @@ cov_fn <- argv$cov
 do_log_transform <- argv$log
 min_samples <- argv$min_sample
 interaction_str <- argv$interaction
+pve_model <- argv$model
+na_str <- argv$na
+TIS <- argv$tissue
 out_prefix <- argv$o
 
 var_explained_by_pc_out_fn = paste0(out_prefix, "_variance_explained_by_pc.txt")
@@ -52,10 +64,26 @@ categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE",
                            "SMNABTCH", "SMGEBTCH", "SMCAT", "SMCENTER", 
                            "SMOMTRLTP", "SMSTYP", "SMTSD", "ANALYTE_TYPE", "SMTORMVE")
 
+if(pve_model == 'lm'){
+  # can add correlated covariates
+  numeric_covariates = c(numeric_covariates, "BMI", "TRCHSTIND",  "TRISCHD", "TRDNISCH")
+}
+
 ## read expr
 expr_df = read_df(expr_fn, header = F)
 sample_line = readLines(expr_fn, n = 1)
 colnames(expr_df) = unlist(strsplit(sample_line, split = '\t'))
+
+### read covariate and select covariates
+cov_df = read_df(cov_fn, header = T)
+rownames(cov_df) = make.names(cov_df[,"st_id"])
+cov_df = cov_df[colnames(expr_df),]
+if(nchar(TIS) > 0)
+  cov_df = cov_df[cov_df$tissue_abbrev == TIS, ]
+
+common_samples = intersect(rownames(cov_df), colnames(expr_df))
+cov_df = cov_df[common_samples,]
+expr_df = expr_df[,common_samples]
 
 if(as.character(do_log_transform) == "TRUE"){
   expr_df = log2(1e-3+expr_df)
@@ -78,9 +106,9 @@ dev.off()
 
 
 ### read covariate and select covariates
-cov_df = read_df(cov_fn, header = T)
-rownames(cov_df) = make.names(cov_df[,"st_id"])
-cov_df = cov_df[colnames(expr_df),]
+# cov_df = read_df(cov_fn, header = T)
+# rownames(cov_df) = make.names(cov_df[,"st_id"])
+# cov_df = cov_df[colnames(expr_df),]
 
 # include subject id as a predictor only if there are at least 5 samples from it
 # otherwise the subject could capture combined effect of sex/ethnicity/race etc.
@@ -96,16 +124,18 @@ num_cov_df = num_cov_df[,n_na_num==0]
 n_uniq_num = sapply(num_cov_df, function(x) length(unique(x)))
 num_cov_df = num_cov_df[,n_uniq_num>1]
 
-cat_cov_df[is.na(cat_cov_df)] = "UNKNOWN"
-cat_cov_df[cat_cov_df=="99"] = "UNKNOWN"
-cat_cov_df[cat_cov_df=="99.0"] = "UNKNOWN"
-cat_cov_df[cat_cov_df=="98"] = "UNKNOWN"
-cat_cov_df[cat_cov_df=="98.0"] = "UNKNOWN"
+if(na_str == "")
+  na_str = NA
+cat_cov_df[is.na(cat_cov_df)] = na_str
+cat_cov_df[cat_cov_df=="99"] = na_str
+cat_cov_df[cat_cov_df=="99.0"] = na_str
+cat_cov_df[cat_cov_df=="98"] = na_str
+cat_cov_df[cat_cov_df=="98.0"] = na_str
 
 for(cov in categorical_covariates){
   item_count = table(cat_cov_df[,cov])
   items_to_avoid = names(item_count[item_count<min_samples])
-  cat_cov_df[cat_cov_df[,cov] %in% items_to_avoid, cov] = "UNKNOWN"
+  cat_cov_df[cat_cov_df[,cov] %in% items_to_avoid, cov] = na_str
   if(length(items_to_avoid) < 10)
     print(paste(c(cov, ":", items_to_avoid), sep = " ", collapse = " " ))
 }
@@ -119,16 +149,39 @@ for(cov_name in colnames(num_cov_df))
 for(cov_name in colnames(cat_cov_df))
   cov_df[,cov_name] = factor(cov_df[,cov_name])
 
-# construct formula for 
-num_form_str = paste(colnames(num_cov_df), collapse=' + ')
-cat_form_str = paste("(1|", colnames(cat_cov_df), ")", collapse=' + ')
-form_str = paste("~ ", num_form_str, " + ", cat_form_str)
-if(nchar(interaction_str) > 0)
-  form_str = paste(form_str, " + ", interaction_str)
-form = formula(form_str)
 
 # run variance partition
-varPart <- fitExtractVarPartModel(pcs, form, cov_df)
+if(pve_model == 'variancepartition'){
+  # construct formula for 
+  num_form_str = paste(colnames(num_cov_df), collapse=' + ')
+  cat_form_str = paste("(1|", colnames(cat_cov_df), ")", collapse=' + ')
+  form_str = paste("~ ", num_form_str, " + ", cat_form_str)
+  if(nchar(interaction_str) > 0)
+    form_str = paste(form_str, " + ", interaction_str)
+  form = formula(form_str)
+  
+  varPart <- fitExtractVarPartModel(pcs, form, cov_df)
+} else if (pve_model == 'lm'){
+  lm_pve <- function(expr1, cov1){
+    # expr1: gene x sample dataframe/matrix
+    # cov1: sample x cov dataframe/matrix
+    mydata = cbind(t(expr1), cov1)
+    pve = lapply(colnames(cov1), function(cn){
+      sapply(rownames(expr1), function(g){
+        form = formula(paste(g, ' ~ ', cn))
+        lm1 <- lm(formula = form, data = mydata)
+        r.sq = max(0, summary(lm1)$adj.r.squared)
+        return(r.sq)
+      })
+    })
+    names(pve) <- colnames(cov1)
+    return(pve)
+  }
+  varPart <- lm_pve(pcs, cov_df)
+} else{
+  stop('invalid percent variance explained model')
+}
+
 
 # save variance partition results
 var_part_df = data.frame(row.names = rownames(pcs))
