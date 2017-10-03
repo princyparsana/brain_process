@@ -20,6 +20,9 @@ args <- add_argument(args, '-log',
 args <- add_argument(args, '-min_sample',
                      help='In a categorical variable, a category must have a min number of samples, otherwise set to UNKNOWN for linear regression',
                      default=15)
+args <- add_argument(args, '-max_pc',
+                     help='maximum number of PCs to compute. Must be at least 20. Use a small number to save running time.',
+                     default=1e6)
 args <- add_argument(args, '-interaction',
                      help='interaction terms to add with regular linear model',
                      default="")
@@ -41,6 +44,7 @@ expr_fn <- argv$expr
 cov_fn <- argv$cov
 do_log_transform <- argv$log
 min_samples <- argv$min_sample
+max_pc <- argv$max_pc
 interaction_str <- argv$interaction
 pve_model <- argv$model
 na_str <- argv$na
@@ -91,7 +95,7 @@ if(as.character(do_log_transform) == "TRUE"){
 
 # compute expression PCs
 expr_mat_transposed = scale(t(expr_df))   # sample x gene
-expr_svd = propack.svd(expr_mat_transposed, neig = min(dim(expr_df)))
+expr_svd = propack.svd(expr_mat_transposed, neig = min(c(dim(expr_df),max_pc)))
 pcs = t(expr_svd$u[,1:20])
 pcs = t(scale(t(pcs)))
 colnames(pcs) = colnames(expr_df)
