@@ -144,7 +144,7 @@ for(cov in categorical_covariates){
     print(paste(c(cov, ":", items_to_avoid), sep = " ", collapse = " " ))
 }
 
-n_uniq_cat = sapply(cat_cov_df, function(x) length(unique(x)))
+n_uniq_cat = sapply(cat_cov_df, function(x) length(unique(x[!is.na(x)])))
 cat_cov_df = cat_cov_df[,n_uniq_cat>1]
 
 cov_df = cbind(num_cov_df, cat_cov_df)
