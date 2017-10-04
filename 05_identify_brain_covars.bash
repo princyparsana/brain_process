@@ -1,3 +1,0 @@
-TEMP=`pwd` Rscript 05_identify_brain_covars.R 20170517.gtex_expression.brain.good_genes.outlier_rm.txt covariates/20170517.std_covars.PCs.brain.txt 20170517.gtex_expression.covar_importance.brain.txt --replicates 30 --ncores 5 --log 1 --regress tissue_abbrev,seq_pc1,seq_pc2,seq_pc3,seq_pc4,seq_pc5
-
-TEMP=`pwd` Rscript 05_identify_brain_covars.R 20170517.gtex_expression.isoform.brain.good_genes.outlier_rm.txt covariates/20170517.std_covars.PCs.brain.txt 20170517.gtex_expression.isoform.covar_importance.brain.txt --replicates 30 --ncores 5 --log 1 --regress tissue_abbrev,seq_pc1,seq_pc2,seq_pc3,seq_pc4,seq_pc5
