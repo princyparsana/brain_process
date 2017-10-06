@@ -185,7 +185,7 @@ if(pve_model == 'variancepartition'){
   }
   varPart <- lm_pve(pcs, cov_df)
 } else if (pve_model == 'totallm'){
-  toal_lm_pve <- function(expr1, cov1){
+  total_lm_pve <- function(expr1, cov1){
     # expr1: gene x sample dataframe/matrix
     # cov1: sample x cov dataframe/matrix
     mydata = cbind(t(expr1), cov1)
@@ -211,7 +211,7 @@ if(pve_model == 'variancepartition'){
     names(pve) <- colnames(cov1)
     return(pve)
   }
-  varPart <- lm_pve(t(expr_mat_transposed), cov_df)
+  varPart <- total_lm_pve(t(expr_mat_transposed), cov_df)
 } else{
   stop('invalid percent variance explained model')
 }
