@@ -409,9 +409,12 @@ done
 expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
 cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
 do_log=TRUE
+min_sample=15
+na_str="UNKNOWN"
 out_all="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_regressed.txt"
-out_within="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
-Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within"   2>&1 | tee $log_dir/06a_regress_lm_brain_gene.log
+#out_within="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
+out_within=""
+/home/asaha6/programs/installed/R-3.2.2/bin/Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"   2>&1 | tee $log_dir/06a_regress_lm_brain_gene_across_tissues.log
 
 # isoform
 expr_fn="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.txt"
@@ -419,7 +422,7 @@ cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
 do_log=TRUE
 out_all="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.lm_regressed.txt"
 out_within="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
-Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within"   2>&1 | tee $log_dir/06a_regress_lm_brain_iso.log
+#Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within"   2>&1 | tee $log_dir/06a_regress_lm_brain_iso.log
 
 # isoform ratio
 expr_fn="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.txt"
@@ -427,5 +430,5 @@ cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
 do_log=TRUE
 out_all="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.lm_regressed.txt"
 out_within="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
-Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within"    2>&1 | tee $log_dir/06a_regress_lm_brain_isopct.log
+#Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within"    2>&1 | tee $log_dir/06a_regress_lm_brain_isopct.log
 
