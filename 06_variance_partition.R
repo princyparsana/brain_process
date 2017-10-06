@@ -188,13 +188,11 @@ if(pve_model == 'variancepartition'){
   total_lm_pve <- function(expr1, cov1){
     # expr1: gene x sample dataframe/matrix
     # cov1: sample x cov dataframe/matrix
-    mydata = cbind(t(expr1), cov1)
+    mydata = t(expr1)
     pve = lapply(colnames(cov1), function(cn){
-      res = sapply(rownames(expr1), function(g){
-        form = formula(paste(g, ' ~ ', cn))
-        lm1 <- lm(formula = form, data = mydata)
-        return(lm1$residuals)
-      })
+      mycov = t(t(cov1[,cn, drop=F])) # double transpose sets appropriate type
+      lm1 = lm(mydata ~ mycov)
+      res = lm1$residuals
       RSS = norm(res, type = 'F')^2
       TSS = norm(expr1[colnames(res), rownames(res)], type = 'F')^2
       R2 = (TSS-RSS)/TSS
