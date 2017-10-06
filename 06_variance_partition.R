@@ -68,7 +68,7 @@ categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE",
                            "SMNABTCH", "SMGEBTCH", "SMCAT", "SMCENTER", 
                            "SMOMTRLTP", "SMSTYP", "SMTSD", "ANALYTE_TYPE", "SMTORMVE")
 
-if(pve_model == 'lm'){
+if(pve_model == 'lm' || pve_model == 'totallm'){
   # can add correlated covariates
   numeric_covariates = c(numeric_covariates, "BMI", "TRCHSTIND",  "TRISCHD", "TRDNISCH")
 }
@@ -135,6 +135,8 @@ cat_cov_df[cat_cov_df=="99"] = na_str
 cat_cov_df[cat_cov_df=="99.0"] = na_str
 cat_cov_df[cat_cov_df=="98"] = na_str
 cat_cov_df[cat_cov_df=="98.0"] = na_str
+cat_cov_df[cat_cov_df=="UNK"] = na_str
+cat_cov_df[cat_cov_df==""] = na_str
 
 for(cov in categorical_covariates){
   item_count = table(cat_cov_df[,cov])
@@ -182,6 +184,34 @@ if(pve_model == 'variancepartition'){
     return(pve)
   }
   varPart <- lm_pve(pcs, cov_df)
+} else if (pve_model == 'totallm'){
+  toal_lm_pve <- function(expr1, cov1){
+    # expr1: gene x sample dataframe/matrix
+    # cov1: sample x cov dataframe/matrix
+    mydata = cbind(t(expr1), cov1)
+    pve = lapply(colnames(cov1), function(cn){
+      res = sapply(rownames(expr1), function(g){
+        form = formula(paste(g, ' ~ ', cn))
+        lm1 <- lm(formula = form, data = mydata)
+        return(lm1$residuals)
+      })
+      RSS = norm(res, type = 'F')^2
+      TSS = norm(expr1[colnames(res), rownames(res)], type = 'F')^2
+      R2 = (TSS-RSS)/TSS
+      n = nrow(res)
+      if(class(cov1[,cn]) == 'factor' || class(cov1[,cn]) == 'character'){
+        p = length(setdiff(unique(cov1[,cn]), NA)) - 1  # one 
+      } else{
+        p = 1
+      }
+      R2.adj = R2 - (1-R2)*p/(n-p-1)
+      R2.adj = max(0, R2.adj)
+      return(R2.adj)
+    })
+    names(pve) <- colnames(cov1)
+    return(pve)
+  }
+  varPart <- lm_pve(t(expr_mat_transposed), cov_df)
 } else{
   stop('invalid percent variance explained model')
 }
@@ -189,6 +219,8 @@ if(pve_model == 'variancepartition'){
 
 # save variance partition results
 var_part_df = data.frame(row.names = rownames(pcs))
+if(pve_model == 'totallm')
+  var_part_df = data.frame(row.names = TIS)
 for (pred in names(varPart)){
   var_part_df[,pred] = varPart[[pred]]
 }
