@@ -215,6 +215,7 @@ main <- function(xp.file, cov.file, out.file, do.log, n.rep, n.cores, regress.co
   cat_cov_df[cat_cov_df=="97"] = "UNKNOWN"
   cat_cov_df[cat_cov_df=="97.0"] = "UNKNOWN"
   cat_cov_df[cat_cov_df=="UNK"] = "UNKNOWN"
+  cat_cov_df[cat_cov_df==""] = "UNKNOWN"
   
   for(cov in categorical_covariates){
     item_count = table(cat_cov_df[,cov])
@@ -224,7 +225,7 @@ main <- function(xp.file, cov.file, out.file, do.log, n.rep, n.cores, regress.co
       print(paste(c(cov, ":", items_to_avoid), sep = " ", collapse = " " ))
   }
   
-  n_uniq_cat = sapply(cat_cov_df, function(x) length(unique(x)))
+  n_uniq_cat = sapply(cat_cov_df, function(x) length(unique(x[!is.na(x)])))
   cat_cov_df = cat_cov_df[,n_uniq_cat>1]
   
   dat.cov = cbind(num_cov_df, cat_cov_df)
