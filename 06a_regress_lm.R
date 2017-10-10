@@ -30,7 +30,7 @@ do_log_transform <- argv$log
 min_samples <- argv$min_sample
 na_str <- argv$na
 out_all_fn <- argv$out_all
-out_within_fn <- argv$out_all
+out_within_fn <- argv$out_within
 
 numeric_covariates = c("seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5", "SMRIN", "AGE", "TRDNISCH")
 
@@ -92,54 +92,70 @@ for(cov_name in intersect(colnames(cat_cov_df), categorical_covariates))
 
 ### regress samples from all tissues
 if(nchar(out_all_fn) > 0){
-  brainExpr.reg <- brainExpr
+  my_data = as.data.frame(t(brainExpr))
   ddf.base <- brainCov[,c('tissue_abbrev', categorical_covariates, numeric_covariates)]
-  for ( gene in 1:nrow(brainExpr.reg) ) {
-    ddf <- ddf.base
-    ddf$expr <- as.numeric(brainExpr[gene,])
-    lm.res <- lm(expr ~ . - expr, data=ddf)
-    brainExpr.reg[gene,] <- lm.res$residuals + lm.res$coefficients['(Intercept)']
-    for ( coef in names(lm.res$coefficients) ) {
-      if ( grepl('tissue_abbrev', coef) ) {
-        ttype <- gsub('tissue_abbrev', '', coef)
-        sam.index <- which(grepl(ttype, colnames(brainExpr.reg)))
-        brainExpr.reg[gene, sam.index] <- brainExpr.reg[gene, sam.index] + lm.res$coefficients[coef]
-      }
+  for(col in colnames(ddf.base))
+    my_data[,col] = ddf.base[,col]
+  
+  # create formula
+  lhs = paste('cbind(', paste(rownames(brainExpr), collapse = ', '), ')')
+  rhs = paste(colnames(ddf.base), collapse = ' + ')
+  form_str = paste(lhs, '~', rhs)
+  form = formula(form_str)
+  
+  # regress covariates except tissue
+  lm.res <- lm(form, data = my_data)
+  brainExpr.reg = lm.res$residuals + lm.res$coefficients[rep('(Intercept)', nrow(lm.res$residuals)), ]
+  for ( coef in rownames(lm.res$coefficients) ) {
+    if ( grepl('tissue_abbrev', coef) ) {
+      ttype <- gsub('tissue_abbrev', '', coef)
+      sam.index <- which(grepl(ttype, rownames(brainExpr.reg)))
+      brainExpr.reg[sam.index,] <- brainExpr.reg[sam.index,] + lm.res$coefficients[rep(coef,length(sam.index)),]
     }
-    rm(ddf, lm.res, sam.index)
-    # print status
-    if(gene %% 100 == 0)
-      print(paste0('corrected ', gene, ' of ', nrow(brainExpr.reg), ' genes.'))
   }
   
-  write.table(brainExpr.reg, quote=F, sep='\t', file=out_all_fn)
+  rm(my_data, ddf.base, lm.res, sam.index)
+  # sanity check
+  if(sum(is.na(brainExpr.reg))>0)
+    stop('NA in regressed expression.')
+  write.table(t(brainExpr.reg), quote=F, sep='\t', file=out_all_fn)
 }
 
 ### regress samples from each tissues
 if(nchar(out_within_fn) > 0){
-  brainExpr.reg <- brainExpr
-  ddf.base <- brainCov[,c('tissue_abbrev', categorical_covariates, numeric_covariates)]
-  fla.add <- paste(c(categorical_covariates, numeric_covariates), collapse=' + ')
-  fla <- formula(sprintf('expr ~ %s', fla.add))
-  tissues <- sort(unique(ddf.base$tissue_abbrev))
-  for ( gene in 1:nrow(brainExpr.reg) ) {
-    for ( tissue in tissues ) {
-      ddf <- ddf.base[ddf.base$tissue_abbrev == tissue,]
-      ddf$expr <- as.numeric(brainExpr[gene,ddf.base$tissue_abbrev == tissue])
-      uniq_count = apply(ddf, 2, function(x) length(unique(x)))
-      if(sum(uniq_count<=1) > 1){
-        print(paste('no variance for some covariates (other than tissue) in ', tissue))
-        print(uniq_count)
-        stop(paste('no variance for some covariates (other than tissue) in ', tissue))
-      }
-      lm.res <- lm(fla, data=ddf)
-      brainExpr.reg[gene,ddf.base$tissue_abbrev == tissue] <- lm.res$residuals + lm.res$coefficients['(Intercept)']
-      rm(ddf, lm.res)
+  # create formula
+  lhs = paste('cbind(', paste(rownames(brainExpr), collapse = ', '), ')')
+  predictors = intersect(colnames(brainCov), c(categorical_covariates, numeric_covariates))
+  rhs = paste(predictors, collapse = ' + ')
+  form_str = paste(lhs, '~', rhs)
+  form = formula(form_str)
+  
+  brainExpr.reg <- matrix(NA, nrow = ncol(brainExpr), ncol = nrow(brainExpr))
+  rownames(brainExpr.reg) <- colnames(brainExpr)
+  colnames(brainExpr.reg) <- rownames(brainExpr)
+  tissues <- sort(unique(brainCov$tissue_abbrev))
+  for(tissue in tissues){
+    ddf.base <- brainCov[brainCov$tissue_abbrev == tissue, predictors]
+    uniq_count = apply(ddf.base, 2, function(x) length(unique(x)))
+    if(sum(uniq_count<=1) > 0){
+      print(uniq_count)
+      stop(paste('no variance for some covariates in ', tissue))
     }
-    # print status
-    if(gene %% 100 == 0)
-      print(paste0('corrected ', gene, ' of ', nrow(brainExpr.reg), ' genes.'))
+    
+    my_data = as.data.frame(t(brainExpr[,rownames(ddf.base)]))
+    for(col in colnames(ddf.base))
+      my_data[,col] = ddf.base[,col]
+    
+    # regress covariates except tissue
+    lm.res <- lm(form, data = my_data)
+    brainExpr.reg[rownames(my_data),] = lm.res$residuals+ lm.res$coefficients[rep('(Intercept)', nrow(lm.res$residuals)), ]
+    
+    rm(my_data, ddf.base, lm.res)
   }
   
-  write.table(brainExpr.reg, quote=F, sep='\t', file=out_within_fn)
+  # sanity check
+  if(sum(is.na(brainExpr.reg))>0)
+    stop('NA in regressed expression.')
+  
+  write.table(t(brainExpr.reg), quote=F, sep='\t', file=out_within_fn)
 }
