@@ -23,9 +23,10 @@ base_attribs['st_id'] = base_attribs['SUBJID'] + '-' + base_attribs['tissue_abbr
 
 # LEUK is a cell-line
 # BRNSPN is functionally different from other brain tissues
-# sample prep is different for 'BRNCBL', 'BRNCBH' compared to other tissues
-# <30 samples in 'CVXECTO', 'CVXENDO', 'FLLPNT', 'KDNMDL'
-base_attribs = base_attribs[[t not in ['LEUK', 'BRNSPN', 'BRNCBL', 'BRNCBH', 'CVXECTO', 'CVXENDO', 'FLLPNT', 'KDNMDL'] for t in base_attribs['tissue_abbrev']]]
+# sample prep is different for 'BRNCTX', 'BRNCBL', 'BRNCBH' compared to other tissues
+# <30 samples in 'CVXECTO', 'CVXENDO', 'FLLPNT', 'KDNMDL', 'BLDR'
+# >0.05 percent variance explained by medical history based PCs in KDNCTX
+base_attribs = base_attribs[[t not in ['LEUK', 'BRNCTX', 'BRNSPN', 'BRNCBL', 'BRNCBH', 'CVXECTO', 'CVXENDO', 'FLLPNT', 'KDNMDL', 'BLDR', 'KDNCTX'] for t in base_attribs['tissue_abbrev']]]
 base_attribs = base_attribs[base_attribs['tissue_abbrev'].apply(str) != 'NA']
 
 ### TODO: add star covariates when available for gtex v8
@@ -60,12 +61,11 @@ def dthcodd_enc(dc):
   return '3wplus'
 
 
-### TODO: v8 SMAFRZE does not contain any 'USE ME' flag
-# #drop anything out of the freeze
-# base_attribs = base_attribs[base_attribs['SMAFRZE'] == 'USE ME']
-
 ### use only RNA-seq samples [SMRDLGTH (max read length) is not null]
 base_attribs = base_attribs[base_attribs['SMRDLGTH'].notnull()]
+
+### use only eligible subjects
+base_attribs = base_attribs[base_attribs['INCEXC']]
 
 base_attribs['DTHCODD_CAT'] = [dthcodd_enc(x) for x in base_attribs['DTHCODD']]
 
