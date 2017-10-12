@@ -293,9 +293,6 @@ Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissu
 
 #### step-5 variance explained -- totallm model
 ##### variance partition -- brain genes ###############
-var_exp_dir="$data_dir/variance_explained_totallm"
-mkdir $var_exp_dir
-
 expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
 cov_fn="$data_dir/covariates/20170901.all_covariates.PCs.brain.txt"
 min_sample=15
@@ -311,7 +308,7 @@ Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -
 
 
 mkdir "$var_exp_dir/per_tissue"
-for tissue in BRNCTX BRNCTXBA9 BRNCDT BRNACC BRNPUT BRNHYP BRNHIP BRNCTXB24 BRNSNA BRNAMY
+for tissue in BRNCTXBA9 BRNCDT BRNACC BRNPUT BRNHYP BRNHIP BRNCTXB24 BRNSNA BRNAMY
 do
   echo $tissue
   expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
@@ -342,8 +339,7 @@ max_pc=20
 Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 
 
-
-for tissue in ADPSBQ ADPVSC ADRNLG ARTAORT ARTCRN ARTTBL BLDR BREAST BRNACC BRNAMY BRNCDT BRNCTX BRNCTXB24 BRNCTXBA9 BRNHIP BRNHYP BRNPUT BRNSNA CLNSIG CLNTRN ESPGEJ ESPMCS ESPMSL FIBRCUL HRTAA HRTLV KDNCTX LCL LIVER LUNG MSCLSK NERVET OVARY PNCREAS PRSTTE PTTARY SALVMNR SKINNS SKINS SMNTILM SPLN STMACH TESTIS THYROID UTERUS VAGINA WHLBLD
+for tissue in ADPSBQ ADPVSC ADRNLG ARTAORT ARTCRN ARTTBL BREAST BRNACC BRNAMY BRNCDT BRNCTXB24 BRNCTXBA9 BRNHIP BRNHYP BRNPUT BRNSNA CLNSIG CLNTRN ESPGEJ ESPMCS ESPMSL FIBRCUL HRTAA HRTLV LCL LIVER LUNG MSCLSK NERVET OVARY PNCREAS PRSTTE PTTARY SALVMNR SKINNS SKINS SMNTILM SPLN STMACH TESTIS THYROID UTERUS VAGINA WHLBLD
 do
   echo $tissue
   expr_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
@@ -437,3 +433,54 @@ na_str="UNKNOWN"
 out_all="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.lm_regressed.txt"
 out_within="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
 Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"    2>&1 | tee $log_dir/06a_regress_lm_alltissue_isopct.log
+
+
+### check PVE after linear model correction -- brain tissues
+mkdir "$var_exp_dir/per_tissue_after_correction"
+for tissue in BRNCTXBA9 BRNCDT BRNACC BRNPUT BRNHYP BRNHIP BRNCTXB24 BRNSNA BRNAMY
+do
+  echo $tissue
+  expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
+  cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
+  do_log=FALSE
+  min_sample=15
+  interaction=""
+  model="totallm"
+  na_str=""
+  max_pc=20
+  out_pref="$var_exp_dir/per_tissue_after_correction/brain_gene_${tissue}"
+  Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+done
+
+
+### check PVE after linear model correction -- all tissues
+for tissue in ADPSBQ ADPVSC ADRNLG ARTAORT ARTCRN ARTTBL BREAST BRNACC BRNAMY BRNCDT BRNCTXB24 BRNCTXBA9 BRNHIP BRNHYP BRNPUT BRNSNA CLNSIG CLNTRN ESPGEJ ESPMCS ESPMSL FIBRCUL HRTAA HRTLV LCL LIVER LUNG MSCLSK NERVET OVARY PNCREAS PRSTTE PTTARY SALVMNR SKINNS SKINS SMNTILM SPLN STMACH TESTIS THYROID UTERUS VAGINA WHLBLD
+do
+  echo $tissue
+  expr_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
+  cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+  do_log=FALSE
+  min_sample=15
+  interaction=""
+  model="totallm"
+  na_str=""
+  max_pc=20
+  out_pref="$var_exp_dir/per_tissue_after_correction/alltisue_gene_${tissue}"
+  Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+done
+
+
+
+mkdir "$var_exp_dir/per_tissue_after_correction/combined"
+
+dir="$var_exp_dir/per_tissue_after_correction"
+pattern='brain_gene_.*_variance_explained_by_cov.txt$'
+out_prefix="$dir/combined/brain_gene_combined_variance_explained_by_cov"
+Rscript 05b_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
+
+
+dir="$var_exp_dir/per_tissue_after_correction"
+pattern='alltisue_gene_.*_variance_explained_by_cov.txt$'
+out_prefix="$dir/combined/alltisue_gene_combined_variance_explained_by_cov"
+Rscript 05b_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
+
