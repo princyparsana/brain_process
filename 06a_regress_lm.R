@@ -32,9 +32,9 @@ na_str <- argv$na
 out_all_fn <- argv$out_all
 out_within_fn <- argv$out_within
 
-numeric_covariates = c("seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5", "SMRIN", "AGE", "TRDNISCH")
+numeric_covariates = c("seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5", "SMRIN", "TRISCHD")
 
-categorical_covariates = c("DTHHRDY", "DTHCODD_CAT", "SMCENTER", "SMGEBTCH", "DTHRFG", "DTHVNT")
+categorical_covariates = c("COHORT", "DTHCODD_CAT", "DTHHRDY", "DTHRFG", "DTHVNT", "TRORGNS", "SMGEBTCH", "SMCENTER")
 
 
 brainExpr <- read.table(expr_fn, header=T, sep='\t')
@@ -93,7 +93,8 @@ for(cov_name in intersect(colnames(cat_cov_df), categorical_covariates))
 ### regress samples from all tissues
 if(nchar(out_all_fn) > 0){
   my_data = as.data.frame(t(brainExpr))
-  ddf.base <- brainCov[,c('tissue_abbrev', categorical_covariates, numeric_covariates)]
+  predictors = intersect(colnames(brainCov), c('tissue_abbrev', categorical_covariates, numeric_covariates))
+  ddf.base <- brainCov[,predictors]
   for(col in colnames(ddf.base))
     my_data[,col] = ddf.base[,col]
   
@@ -123,28 +124,27 @@ if(nchar(out_all_fn) > 0){
 
 ### regress samples from each tissues
 if(nchar(out_within_fn) > 0){
-  # create formula
-  lhs = paste('cbind(', paste(rownames(brainExpr), collapse = ', '), ')')
-  predictors = intersect(colnames(brainCov), c(categorical_covariates, numeric_covariates))
-  rhs = paste(predictors, collapse = ' + ')
-  form_str = paste(lhs, '~', rhs)
-  form = formula(form_str)
-  
   brainExpr.reg <- matrix(NA, nrow = ncol(brainExpr), ncol = nrow(brainExpr))
   rownames(brainExpr.reg) <- colnames(brainExpr)
   colnames(brainExpr.reg) <- rownames(brainExpr)
   tissues <- sort(unique(brainCov$tissue_abbrev))
   for(tissue in tissues){
+    predictors = intersect(c(categorical_covariates, numeric_covariates), colnames(brainCov))
     ddf.base <- brainCov[brainCov$tissue_abbrev == tissue, predictors]
     uniq_count = apply(ddf.base, 2, function(x) length(unique(x)))
-    if(sum(uniq_count<=1) > 0){
-      print(uniq_count)
-      stop(paste('no variance for some covariates in ', tissue))
-    }
+    ddf.base = ddf.base[,uniq_count>1]
     
     my_data = as.data.frame(t(brainExpr[,rownames(ddf.base)]))
     for(col in colnames(ddf.base))
       my_data[,col] = ddf.base[,col]
+    
+    # create formula
+    lhs = paste('cbind(', paste(rownames(brainExpr), collapse = ', '), ')')
+    predictors = colnames(ddf.base)
+    rhs = paste(predictors, collapse = ' + ')
+    form_str = paste(lhs, '~', rhs)
+    form = formula(form_str)
+    
     
     # regress covariates except tissue
     lm.res <- lm(form, data = my_data)
