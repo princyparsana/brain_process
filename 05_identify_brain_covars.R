@@ -14,6 +14,8 @@ categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE",
                            "SMNABTCH", "SMGEBTCH", "SMCAT", "SMCENTER", 
                            "SMOMTRLTP", "SMSTYP", "SMTSD", "ANALYTE_TYPE", "SMTORMVE")
 
+use_pcs = FALSE
+
 getArgs <- function() {
   parser <- arg_parser(description='EarthSelect for covariates')
   parser <- add_argument(parser, '-expression', help='The expression file', type='character', default=NULL)
@@ -26,6 +28,7 @@ getArgs <- function() {
   parser <- add_argument(parser, '-jackknife', help='Downsample to this many samples', type='integer', default=0)
   parser <- add_argument(parser, '-within', help='Run within groups (one per replicate)', type='character', default="")
   parser <- add_argument(parser, '-min_sample', help='In a categorical variable, a category must have a min number of samples, otherwise set to UNKNOWN', default=15)
+  parser <- add_argument(parser, '-pc', help='use principal components, instead of individal genes (0 or 1)', default=1)
   arrv <- parse_args(parser)
 }
 
@@ -54,6 +57,9 @@ earthSelect <- function(gene.expr, covars, n.predictors=100, num.genes=50, min.s
   #  terms         - the terms included
   #  term.imp      - importance for each term: this is the 80th percentile of max(beta)
   #  model.matrix  - the model matrix resulting from model.matrix(formula, covars)
+  
+  # gene.expr=this.expr; covars=this.cov; n.predictors=100; num.genes=50; min.span=0; end.span=0; force.linear=T; nprune=80; max.terms=150; no.cross=NULL;
+  
   print(sprintf('ES on (%d,%d) by (%d,%d)', dim(gene.expr)[1], dim(gene.expr)[2], dim(covars)[1], dim(covars)[2]))
   if ( is.null(max.terms) ) {
     max.terms <- 1000
@@ -65,13 +71,18 @@ earthSelect <- function(gene.expr, covars, n.predictors=100, num.genes=50, min.s
   }
   
   ### compute expression PCs
+  if(use_pcs){
   expr_mat_transposed = scale(t(gene.expr[gene.idx,]))   # sample x gene
   expr_svd = propack.svd(expr_mat_transposed, neig = min(dim(expr_mat_transposed)))
   pcs = t(expr_svd$u[,1:20])
   colnames(pcs) = rownames(expr_mat_transposed)
   rownames(pcs) = paste0('pc', 1:nrow(pcs))
   var_exp_by_pc = (expr_svd$d^2)/sum((expr_svd$d^2))
-  
+  } else{
+    pcs = t(scale(t(gene.expr[gene.idx,])))
+    rownames(pcs) = rownames(gene.expr)[gene.idx]
+    colnames(pcs) = colnames(gene.expr)
+  }
   
   print('before lhs')
   lhs <- paste('cbind(', paste(rownames(pcs), collapse=', '), ')', sep='')
@@ -113,11 +124,16 @@ earthSelect <- function(gene.expr, covars, n.predictors=100, num.genes=50, min.s
   }
   while ( is.null(n.terms) || n.terms > max.terms ) {
     eres <- update(eres, nprune=nprune)
+    if(use_pcs){
     multiplied_coefs <- eres$coefficients
     for(npc in 1:ncol(multiplied_coefs))
       multiplied_coefs[,npc] = multiplied_coefs[,npc] * var_exp_by_pc[npc] * 100 
     coefs <- as.data.frame(sort(apply(multiplied_coefs, 1, function(x) { max(abs(x))}), decreasing=T))
     colnames(coefs) <- 'BetaMax'
+    } else {
+      coefs <- as.data.frame(sort(apply(eres$coefficients, 1, function(x) { quantile(abs(x), 0.8)}), decreasing=T))
+      colnames(coefs) <- 'Beta80Pct'
+    }
     if ( 'mean.expr' %in% rownames(coefs) ) {
       drop.idx <- which(rownames(coefs) == 'mean.expr')
       coefs <- coefs[1:(drop.idx-1),,drop=F]
@@ -146,6 +162,7 @@ earthSelect <- function(gene.expr, covars, n.predictors=100, num.genes=50, min.s
 }
 
 multiEarthSelect <- function(gene.expr, covars, n.replicates=10, n.cores=4, n.jk=0, w.grp=NULL) {
+  # gene.expr = dat.expr; covars=dat.cov; n.replicates=n.rep; n.cores=n.cores; n.jk=jackknife; w.grp=group.within;
   # run earthSelect `n.replicates` times on 1,000 random samples of genes
   # and return the model importances
   to.ret <- mclapply(1:n.replicates, function(r) {
@@ -167,8 +184,11 @@ multiEarthSelect <- function(gene.expr, covars, n.replicates=10, n.cores=4, n.jk
       # this.cov = this.cov[,n_na==0]
       # n_uniq = sapply(this.cov, function(x) length(unique(x)))
       # this.cov = this.cov[,n_uniq>1]
-      
+      if(use_pcs){
       res <-  earthSelect(this.expr, this.cov, n.predictors=100, num.genes=1e6, nprune=80, max.terms=150)
+      } else{
+        res <-  earthSelect(this.expr, this.cov, n.predictors=80, num.genes=1000, nprune=50, max.terms=50)
+      }
       print('after earchSelect call')
     }
     print(names(res))
@@ -230,7 +250,7 @@ main <- function(xp.file, cov.file, out.file, do.log, n.rep, n.cores, regress.co
   
   dat.cov = cbind(num_cov_df, cat_cov_df)
   for(cov_name in colnames(num_cov_df))
-    dat.cov[,cov_name] = as.numeric(dat.cov[,cov_name])
+    dat.cov[,cov_name] = as.numeric(dat.cov[,cov_name])  # scale later -- because subset of samples may be selected
   for(cov_name in colnames(cat_cov_df))
     dat.cov[,cov_name] = factor(dat.cov[,cov_name])
   
@@ -256,7 +276,6 @@ main <- function(xp.file, cov.file, out.file, do.log, n.rep, n.cores, regress.co
 
 if ( ! interactive() ) {
   args <- getArgs()
-  
   # args <- list(expression="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gtex_expression.brain.good_genes.outlier_rm.txt",
   #              covariates="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.PCs.brain.txt",
   #              output="results/identified_brain_cov.txt",
@@ -269,6 +288,21 @@ if ( ! interactive() ) {
   #              within="",
   #              min_sample=15)
   # 
+  
+  # args <- list(expression="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gtex_expression.brain.good_genes.outlier_rm.txt",
+  #              covariates="/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.PCs.brain.txt",
+  #              output="results/identified_brain_cov_500_genes.txt",
+  #              log=1,
+  #              replicates=30,
+  #              ncores=10,
+  #              regress=NULL,
+  #              jackknife=0,
+  #              within="",
+  #              min_sample=15,
+  #              pc=0)
+  
+  use_pcs <- args$pc != 0
+  
   
   main(args$expression, args$covariates, args$output, args$log, args$replicates, args$ncores, args$regress, args$jackknife, args$within, args$min_sample)
 }
