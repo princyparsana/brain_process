@@ -87,6 +87,7 @@ if dat_seq_cov_imp.isnull().sum().sum() > 0:
 
 
 # scale
+dat_seq_cov_imp = dat_seq_cov_imp.loc[:, (dat_seq_cov_imp != dat_seq_cov_imp.iloc[0]).any()] 
 dat_seq_cov_imp_scale = dat_seq_cov_imp.apply(lambda x: (x - x.mean())/x.std(), 0)
 dat_seq_cov_imp_log = dat_seq_cov_imp.apply(lambda x: np.log(1e-3 + x))
 dat_seq_cov_imp_log = dat_seq_cov_imp_log.apply(lambda x: (x - x.mean())/x.std(), 0)
@@ -139,6 +140,7 @@ if dat_disease_imp.isnull().sum().sum() > 0:
   raise Exception('NA values in dat_disease!')
 
 # scale and PC
+dat_disease_imp = dat_disease_imp.loc[:, (dat_disease_imp != dat_disease_imp.iloc[0]).any()] 
 dat_disease_imp_scale = dat_disease_imp.apply(lambda x: (x - x.mean())/x.std(), 0)
 pca3 = sk.decomposition.PCA(n_components=3)
 disease_comp = pca3.fit_transform(dat_disease_imp_scale)
