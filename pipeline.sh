@@ -291,121 +291,8 @@ Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissu
 
 
 
-#### step-6 variance explained -- brain tissues
-expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
-cov_fn="$data_dir/covariates/20170901.all_covariates.PCs.brain.txt"
-min_sample=15
-do_log=TRUE
-out_pref="$var_exp_dir/brain_gene"
-interaction=""
-model="lm"
-na_str=""
-tissue=""
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -min_sample $min_sample -o $out_pref -log $do_log -interaction "$interaction" -model "$model" -na "$na_str" -tissue "$tissue"
-
-# isoform
-expr_fn="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.txt"
-cov_fn="$data_dir/covariates/20170901.all_covariates.PCs.brain.txt"
-min_sample=15
-do_log=TRUE
-out_pref="$var_exp_dir/brain_iso"
-interaction=""
-model="lm"
-na_str=""
-tissue=""
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -min_sample $min_sample -o $out_pref -log $do_log -interaction "$interaction" -model "$model" -na "$na_str" -tissue "$tissue"
-
-# isoform ratio
-expr_fn="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.txt"
-cov_fn="$data_dir/covariates/20170901.all_covariates.PCs.brain.txt"
-min_sample=15
-do_log=TRUE
-out_pref="$var_exp_dir/brain_isopct"
-interaction=""
-model="lm"
-na_str=""
-tissue=""
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -min_sample $min_sample -o $out_pref -log $do_log -interaction "$interaction" -model "$model" -na "$na_str" -tissue "$tissue"
-
-
-#### step-6 variance explained - brains - per tissue
-### variance parition per tissue in brain-processed data
-mkdir "$var_exp_dir/per_tissue"
-for tissue in BRNCTX BRNCTXBA9 BRNCDT BRNACC BRNPUT BRNHYP BRNHIP BRNCTXB24 BRNSNA BRNAMY
-do
-  echo $tissue
-  expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
-  cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
-  do_log=TRUE
-  min_sample=15
-  interaction=""
-  model="lm"
-  na_str=""
-  out_pref="$var_exp_dir/per_tissue/brain_gene_${tissue}"
-  Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str"
-done
-
-
-
-#### step-6 variance explained -- alltissue
-expr_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
-cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
-min_sample=15
-do_log=TRUE
-out_pref="$var_exp_dir/alltissue_gene"
-interaction=""
-model="lm"
-na_str=""
-tissue=""
-max_pc=20
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -min_sample $min_sample -o $out_pref -log $do_log -interaction "$interaction" -model "$model" -na "$na_str" -tissue "$tissue" -max_pc $max_pc
-
-
-expr_fn="$data_dir/20170901.gtex_expression.isoform.alltissue.good_genes.outlier_rm.txt"
-cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
-min_sample=15
-do_log=TRUE
-out_pref="$var_exp_dir/alltissue_iso"
-interaction=""
-model="lm"
-na_str=""
-tissue=""
-max_pc=20
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -min_sample $min_sample -o $out_pref -log $do_log -interaction "$interaction" -model "$model" -na "$na_str" -tissue "$tissue" -max_pc $max_pc
-
-
-expr_fn="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.txt"
-cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
-min_sample=15
-do_log=TRUE
-out_pref="$var_exp_dir/alltissue_isopct"
-interaction=""
-model="lm"
-na_str=""
-tissue=""
-max_pc=20
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -min_sample $min_sample -o $out_pref -log $do_log -interaction "$interaction" -model "$model" -na "$na_str" -tissue "$tissue"  -max_pc $max_pc
-
-
-
-### variance parition per tissue in alltissue-processed data
-for tissue in ADPSBQ ADPVSC ADRNLG ARTAORT ARTCRN ARTTBL BLDR BREAST BRNACC BRNAMY BRNCDT BRNCTX BRNCTXB24 BRNCTXBA9 BRNHIP BRNHYP BRNPUT BRNSNA CLNSIG CLNTRN ESPGEJ ESPMCS ESPMSL FIBRCUL HRTAA HRTLV KDNCTX LCL LIVER LUNG MSCLSK NERVET OVARY PNCREAS PRSTTE PTTARY SALVMNR SKINNS SKINS SMNTILM SPLN STMACH TESTIS THYROID UTERUS VAGINA WHLBLD
-do
-  echo $tissue
-  expr_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
-  cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
-  do_log=TRUE
-  min_sample=15
-  interaction=""
-  model="lm"
-  na_str=""
-  out_pref="$var_exp_dir/per_tissue/alltisue_gene_${tissue}"
-  Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str"
-done
-
-
-
-##### variance partition -- totallm model ###############
+#### step-5 variance explained -- totallm model
+##### variance partition -- brain genes ###############
 var_exp_dir="$data_dir/variance_explained_totallm"
 mkdir $var_exp_dir
 
@@ -420,11 +307,8 @@ interaction=""
 model="totallm"
 na_str=""
 max_pc=20
-/home/asaha6/programs/installed/R-3.2.2/bin/Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 
-
-var_exp_dir="$data_dir/variance_explained_totallm"
-mkdir $var_exp_dir
 
 mkdir "$var_exp_dir/per_tissue"
 for tissue in BRNCTX BRNCTXBA9 BRNCDT BRNACC BRNPUT BRNHYP BRNHIP BRNCTXB24 BRNSNA BRNAMY
@@ -439,11 +323,26 @@ do
   na_str=""
   max_pc=20
   out_pref="$var_exp_dir/per_tissue/brain_gene_${tissue}"
-  /home/asaha6/programs/installed/R-3.2.2/bin/Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+  Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 done
 
 
 ### variance parition per tissue in alltissue-processed data
+expr_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
+cov_fn="$data_dir/covariates/20170901.all_covariates.PCs.txt"
+min_sample=15
+out_pref="$var_exp_dir/alltissue_gene"
+tissue=""
+do_log=TRUE
+min_sample=15
+interaction=""
+model="totallm"
+na_str=""
+max_pc=20
+Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+
+
+
 for tissue in ADPSBQ ADPVSC ADRNLG ARTAORT ARTCRN ARTTBL BLDR BREAST BRNACC BRNAMY BRNCDT BRNCTX BRNCTXB24 BRNCTXBA9 BRNHIP BRNHYP BRNPUT BRNSNA CLNSIG CLNTRN ESPGEJ ESPMCS ESPMSL FIBRCUL HRTAA HRTLV KDNCTX LCL LIVER LUNG MSCLSK NERVET OVARY PNCREAS PRSTTE PTTARY SALVMNR SKINNS SKINS SMNTILM SPLN STMACH TESTIS THYROID UTERUS VAGINA WHLBLD
 do
   echo $tissue
@@ -456,27 +355,27 @@ do
   na_str=""
   max_pc=20
   out_pref="$var_exp_dir/per_tissue/alltisue_gene_${tissue}"
-  /home/asaha6/programs/installed/R-3.2.2/bin/Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+  Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 done
 
 
 
-mkdir "$data_dir/variance_explained_totallm/per_tissue/combined"
+mkdir "$var_exp_dir/per_tissue/combined"
 
-dir="$data_dir/variance_explained_totallm/per_tissue"
+dir="$var_exp_dir/per_tissue"
 pattern='brain_gene_.*_variance_explained_by_cov.txt$'
 out_prefix="$dir/combined/brain_gene_combined_variance_explained_by_cov"
 Rscript 06c_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
 
 
-dir="$data_dir/variance_explained_totallm/per_tissue"
+dir="$var_exp_dir/per_tissue"
 pattern='alltisue_gene_.*_variance_explained_by_cov.txt$'
 out_prefix="$dir/combined/alltisue_gene_combined_variance_explained_by_cov"
 Rscript 06c_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
 
 
 
-### linear regression
+### step-6 linear regression (brain tissues)
 # gene
 expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
 cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
@@ -484,23 +383,57 @@ do_log=TRUE
 min_sample=15
 na_str="UNKNOWN"
 out_all="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_regressed.txt"
-#out_within="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
-out_within=""
-/home/asaha6/programs/installed/R-3.2.2/bin/Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"   2>&1 | tee $log_dir/06a_regress_lm_brain_gene_across_tissues.log
+out_within="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
+Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"   2>&1 | tee $log_dir/06a_regress_lm_brain_gene.log
 
 # isoform
 expr_fn="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.txt"
 cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
 do_log=TRUE
+min_sample=15
+na_str="UNKNOWN"
 out_all="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.lm_regressed.txt"
 out_within="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
-#Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within"   2>&1 | tee $log_dir/06a_regress_lm_brain_iso.log
+Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"   2>&1 | tee $log_dir/06a_regress_lm_brain_iso.log
 
 # isoform ratio
 expr_fn="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.txt"
 cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
 do_log=TRUE
+min_sample=15
+na_str="UNKNOWN"
 out_all="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.lm_regressed.txt"
 out_within="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
-#Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within"    2>&1 | tee $log_dir/06a_regress_lm_brain_isopct.log
+Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"    2>&1 | tee $log_dir/06a_regress_lm_brain_isopct.log
 
+
+### step-6 linear regression (all tissues)
+# gene
+expr_fn="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+do_log=TRUE
+min_sample=15
+na_str="UNKNOWN"
+out_all="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.lm_regressed.txt"
+out_within="$data_dir/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
+Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"   2>&1 | tee $log_dir/06a_regress_lm_alltissue_gene.log
+
+# isoform
+expr_fn="$data_dir/20170901.gtex_expression.isoform.alltissue.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+do_log=TRUE
+min_sample=15
+na_str="UNKNOWN"
+out_all="$data_dir/20170901.gtex_expression.isoform.alltissue.good_genes.outlier_rm.lm_regressed.txt"
+out_within="$data_dir/20170901.gtex_expression.isoform.alltissue.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
+Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"   2>&1 | tee $log_dir/06a_regress_lm_alltissue_iso.log
+
+# isoform ratio
+expr_fn="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.txt"
+do_log=TRUE
+min_sample=15
+na_str="UNKNOWN"
+out_all="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.lm_regressed.txt"
+out_within="$data_dir/20170901.gtex_expression.isoform.percentage.alltissue.good_genes.outlier_rm.lm_regressed.within_tissue.txt"
+Rscript 06a_regress_lm.R -expr $expr_fn -cov $cov_fn -log $do_log -out_all "$out_all" -out_within "$out_within" -min_sample $min_sample -na "$na_str"    2>&1 | tee $log_dir/06a_regress_lm_alltissue_isopct.log
