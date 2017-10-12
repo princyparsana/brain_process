@@ -307,7 +307,7 @@ interaction=""
 model="totallm"
 na_str=""
 max_pc=20
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 
 
 mkdir "$var_exp_dir/per_tissue"
@@ -323,7 +323,7 @@ do
   na_str=""
   max_pc=20
   out_pref="$var_exp_dir/per_tissue/brain_gene_${tissue}"
-  Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+  Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 done
 
 
@@ -339,7 +339,7 @@ interaction=""
 model="totallm"
 na_str=""
 max_pc=20
-Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue "$tissue" -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 
 
 
@@ -355,7 +355,7 @@ do
   na_str=""
   max_pc=20
   out_pref="$var_exp_dir/per_tissue/alltisue_gene_${tissue}"
-  Rscript 06_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
+  Rscript 05a_variance_partition.R -expr $expr_fn -cov $cov_fn -tissue $tissue -log $do_log -min_sample $min_sample -o $out_pref  -interaction "$interaction" -model "$model" -na "$na_str" -max_pc $max_pc
 done
 
 
@@ -365,13 +365,13 @@ mkdir "$var_exp_dir/per_tissue/combined"
 dir="$var_exp_dir/per_tissue"
 pattern='brain_gene_.*_variance_explained_by_cov.txt$'
 out_prefix="$dir/combined/brain_gene_combined_variance_explained_by_cov"
-Rscript 06c_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
+Rscript 05b_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
 
 
 dir="$var_exp_dir/per_tissue"
 pattern='alltisue_gene_.*_variance_explained_by_cov.txt$'
 out_prefix="$dir/combined/alltisue_gene_combined_variance_explained_by_cov"
-Rscript 06c_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
+Rscript 05b_combine_totallm_results.R -dir $dir -pattern $pattern -o $out_prefix
 
 
 
