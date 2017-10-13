@@ -14,55 +14,37 @@ covars <- covars[make.names(covars$st_id) %in% rownames(gene.vals),]
 
 covar.outliers <- covars$st_id[c(
   which(covars$seq_pc1 > 50),
-  which(covars$seq_pc3 < -10),
-  which(covars$MH_PC1 > 40),   # ??  "GTEX-O5YT" (intravenous drug abuse, heroin)
-  which(covars$MH_PC3 > 20),   # ??  "GTEX-11TT1" (abnormal wbc, in detention center, heroin use, night sweats, sex worker)
+  which(covars$seq_pc3 > 10),
+  which(covars$MH_PC1 > 20),   # ??  "GTEX-11TT1" (abnormal wbc, in detention center, heroin use, night sweats, sex worker)
   which(covars$SMRIN < 4),
   which(covars$SMMPUNRT < 0.5) # <0.5 ?
 )]
 
 gene.pc.outliers <- rownames(gene.vals)[c(
   which(gene.vals$BRNCTXBA9.PC4 > 0.5),
-  which(gene.vals$ESPGEJ.PC1 < -0.3),
-  which(gene.vals$LCL.PC2 > 0.4),
-  which(gene.vals$PTTARY.PC4 > 0.5),
-  which(gene.vals$SALVMNR.PC3 < -0.4),  # ??
-  which(gene.vals$SALVMNR.PC5 < -0.2),  # ??
   which(gene.vals$TESTIS.PC3 > 0.5),
-  which(gene.vals$THYROID.PC1 < -0.25),
-  which(gene.vals$VAGINA.PC3 > 0.3),
-  which(gene.vals$VAGINA.PC4 > 0.3)
-  #which(gene.vals$WHLBLD.PC4 > 0.2),    # ?? "GTEX.WI4N.WHLBLD"
+  which(gene.vals$THYROID.PC1 < -0.25)
 )]
 
 isof.pc.outliers <- rownames(isof.vals)[c(
-  which(isof.vals$ARTTBL.PC1 < -0.3),
   which(isof.vals$BRNCDT.PC4 < -0.4),
   which(isof.vals$BRNCTXB24.PC5 < -0.4),
-  which(isof.vals$BRNCTXBA9.PC2 < -0.3),
-  which(isof.vals$BRNCTXBA9.PC3 < -0.5),
-  which(isof.vals$BRNHYP.PC5 < -0.6),
-  which(isof.vals$BRNPUT.PC2 < -0.3),
-  which(isof.vals$BRNSNA.PC2 > 0.4),
-  which(isof.vals$FIBRCUL.PC1 > 0.15),  # ? outlier in PC1-PC4
-  which(isof.vals$FIBRCUL.PC3 < -0.16),
+  which(isof.vals$BRNCTXBA9.PC3 < -0.4),
+  which(isof.vals$BRNHYP.PC5 > 0.6),
   which(isof.vals$HRTAA.PC4 < -0.7),
   which(isof.vals$LCL.PC5 < -0.4),
-  which(isof.vals$MSCLSK.PC4 < -0.3),  # ?
-  which(isof.vals$PTTARY.PC3 < -0.4),
+  which(isof.vals$MSCLSK.PC4 > 0.3),
   which(isof.vals$PTTARY.PC5 < -0.4),
   which(isof.vals$SALVMNR.PC4 < -0.6),
   which(isof.vals$TESTIS.PC2 < -0.3),
-  which(isof.vals$TESTIS.PC4 > 0.6),
+  which(isof.vals$TESTIS.PC3 > 0.6),
   which(isof.vals$THYROID.PC1 > 0.2),
-  which(isof.vals$UTERUS.PC2 < -0.35),  # < -0.5 ?
   which(isof.vals$VAGINA.PC3 > 0.6),
   which(isof.vals$VAGINA.PC4 < -0.5)
-  
 )]
 
 isofpct.pc.outliers <- rownames(isofpct.vals)[c(
-  which(isofpct.vals$ADPSBQ.PC4 > 0.4),
+  which(isofpct.vals$ADPSBQ.PC4 < -0.4),
   which(isofpct.vals$ARTAORT.PC2 < -0.4),
   which(isofpct.vals$ARTAORT.PC5 < -0.6),
   which(isofpct.vals$ARTTBL.PC4 < -0.5),
@@ -70,27 +52,27 @@ isofpct.pc.outliers <- rownames(isofpct.vals)[c(
   which(isofpct.vals$BRNACC.PC1 > 0.3),
   which(isofpct.vals$BRNACC.PC4 > 0.4),
   which(isofpct.vals$BRNAMY.PC4 < -0.5),
-  which(isofpct.vals$BRNCDT.PC4 > 0.6),
-  which(isofpct.vals$BRNCTXB24.PC4 > 0.6),
+  which(isofpct.vals$BRNCDT.PC4 < -0.6),
+  which(isofpct.vals$BRNCTXB24.PC4 < -0.6),
   which(isofpct.vals$BRNCTXBA9.PC1 < -0.4),
-  which(isofpct.vals$BRNCTXBA9.PC3 < -0.3),
-  which(isofpct.vals$BRNCTXBA9.PC4 > 0.3),
+  which(isofpct.vals$BRNCTXBA9.PC3 > 0.3),
+  which(isofpct.vals$BRNCTXBA9.PC4 > 0.5),
   which(isofpct.vals$BRNHIP.PC3 > 0.4),
   which(isofpct.vals$BRNHIP.PC4 > 0.6),
   which(isofpct.vals$BRNHYP.PC1 < -0.35),
-  which(isofpct.vals$BRNHYP.PC4 > 0.6),
+  which(isofpct.vals$BRNHYP.PC4 < -0.6),
   which(isofpct.vals$BRNHYP.PC5 < -0.6),
   which(isofpct.vals$BRNPUT.PC2 < -0.5),
   which(isofpct.vals$BRNPUT.PC4 > 0.5),
   which(isofpct.vals$BRNSNA.PC1 < -0.4),
   which(isofpct.vals$BRNSNA.PC4 < -0.4),
-  which(isofpct.vals$CLNSIG.PC1 < -0.2),
   which(isofpct.vals$CLNSIG.PC2 > 0.3),
-  which(isofpct.vals$CLNSIG.PC5 > 0.6),
+  which(isofpct.vals$CLNSIG.PC3 > 0.35),
+  which(isofpct.vals$CLNSIG.PC5 < -0.6),
   which(isofpct.vals$ESPGEJ.PC4 > 0.35),
   which(isofpct.vals$ESPMSL.PC2 < -0.4),
   which(isofpct.vals$ESPMSL.PC4 < -0.4),
-  which(isofpct.vals$HRTAA.PC2 < -0.8),
+  which(isofpct.vals$HRTAA.PC2 > 0.8),
   which(isofpct.vals$HRTAA.PC3 > 0.2),
   which(isofpct.vals$HRTLV.PC3 > 0.4),
   which(isofpct.vals$LCL.PC5 < -0.4),
@@ -99,18 +81,17 @@ isofpct.pc.outliers <- rownames(isofpct.vals)[c(
   which(isofpct.vals$MSCLSK.PC4 > 0.2),
   which(isofpct.vals$NERVET.PC1 > 0.175),
   which(isofpct.vals$NERVET.PC4 < -0.2),
-  which(isofpct.vals$PNCREAS.PC4 < -0.3),
-  which(isofpct.vals$PRSTTE.PC5 > 0.6),
-  which(isofpct.vals$PTTARY.PC2 > 0.5),
-  which(isofpct.vals$PTTARY.PC4 > 0.3),
+  which(isofpct.vals$PNCREAS.PC4 > 0.3),
+  which(isofpct.vals$PRSTTE.PC5 < -0.6),
+  which(isofpct.vals$PTTARY.PC4 < -0.7),
   which(isofpct.vals$SALVMNR.PC2 < -0.35),
   which(isofpct.vals$SALVMNR.PC3 > 0.7),
   which(isofpct.vals$SKINS.PC4 < -0.2),
-  which(isofpct.vals$TESTIS.PC2 > 0.4),
+  which(isofpct.vals$TESTIS.PC2 < -0.4),
   which(isofpct.vals$TESTIS.PC3 > 0.8),
   which(isofpct.vals$THYROID.PC1 > 0.2),
   which(isofpct.vals$UTERUS.PC2 < -0.4),
-  which(isofpct.vals$UTERUS.PC5 > 0.4),
+  which(isofpct.vals$UTERUS.PC5 < -0.4),
   which(isofpct.vals$VAGINA.PC2 < -0.7),
   which(isofpct.vals$VAGINA.PC3 < -0.4),
   which(isofpct.vals$WHLBLD.PC3 > 0.3),
