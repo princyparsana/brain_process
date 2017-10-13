@@ -96,7 +96,7 @@ fast_svd="TRUE"
 Rscript 04a_pc_plots_by_tissue.R -outlier "$outlier" -cov $brain_cov_fn -expr $brain_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $brain_isopct_outlier_pc_fn -expr_filtered $brain_isopct_expr_filtered_fn -pltdir $brain_isopct_outlier_plot_dir  -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_brain_isopct_r1.log
 
 # select outlier brain samples
-Rscript 04b_list_outliers_brain_r1.R
+Rscript 04b_list_outliers_brain_r1.R 2>&1 | tee $log_dir/04b_list_outliers_brain_r1.log
 
 ### step-4 - round2
 
@@ -132,7 +132,7 @@ fast_svd="TRUE"
 Rscript 04a_pc_plots_by_tissue.R -outlier "$outlier" -cov $brain_cov_fn -expr $brain_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $brain_isopct_outlier_pc_fn -expr_filtered $brain_isopct_expr_filtered_fn -pltdir $brain_isopct_outlier_plot_dir  -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_brain_isopct_r2.log
 
 # select outlier brain samples
-Rscript 04b_list_outliers_brain_r2.R
+Rscript 04b_list_outliers_brain_r2.R 2>&1 | tee $log_dir/04b_list_outliers_brain_r2.log
 
 
 ### step-4 - round3
@@ -208,7 +208,7 @@ fast_svd="TRUE"
 Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_isopct_outlier_pc_fn -expr_filtered $alltissue_isopct_expr_filtered_fn -pltdir $alltissue_isopct_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_isopct_r1.log
 
 # select outlier alltissue samples
-Rscript 04b_list_outliers_alltissue_r1.R
+Rscript 04b_list_outliers_alltissue_r1.R 2>&1 | tee $log_dir/04b_list_outliers_alltissue_r1.log
 
 ### step-4 - round2 (all tissues)
 
@@ -246,7 +246,7 @@ fast_svd="TRUE"
 Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_isopct_outlier_pc_fn -expr_filtered $alltissue_isopct_expr_filtered_fn -pltdir $alltissue_isopct_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_isopct_r2.log
 
 # select outlier alltissue samples
-Rscript 04b_list_outliers_alltissue_r2.R
+Rscript 04b_list_outliers_alltissue_r2.R 2>&1 | tee $log_dir/04b_list_outliers_alltissue_r2.log
 
 
 ### step-4 - round3 (all tissues)
@@ -285,7 +285,7 @@ fast_svd="TRUE"
 Rscript 04a_pc_plots_by_tissue_v2_alltissue.R -outlier "$outlier" -cov $alltissue_cov_fn -expr $alltissue_isopct_expr_fn -med $iso_median_count_fn -outlier_pc $alltissue_isopct_outlier_pc_fn -expr_filtered $alltissue_isopct_expr_filtered_fn -pltdir $alltissue_isopct_outlier_plot_dir -fast.svd $fast_svd 2>&1 | tee $log_dir/04a_pc_plots_by_tissue_alltissue_isopct_r3.log
 
 # select outlier alltissue samples
-#Rscript 04b_list_outliers_alltissue_r3.R
+#Rscript 04b_list_outliers_alltissue_r3.R 2>&1 | tee $log_dir/04b_list_outliers_alltissue_r3.log
 
 
 
