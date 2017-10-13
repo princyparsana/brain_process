@@ -15,32 +15,20 @@ covars <- covars[make.names(covars$st_id) %in% rownames(gene.vals),]
 
 covar.outliers <- covars$st_id[c()]
 
-gene.pc.outliers <- rownames(gene.vals)[c(
-  which(gene.vals$BRNCTXBA9.PC3 > 0.3)
-)]
+gene.pc.outliers <- rownames(gene.vals)[c()]
 
 isof.pc.outliers <- rownames(isof.vals)[c()]
 
 isofpct.pc.outliers <- rownames(isofpct.vals)[c(
-  which(isofpct.vals$BRNACC.PC4 > 0.6),
+  which(isofpct.vals$BRNACC.PC4 < -0.7),
 
-  which(isofpct.vals$BRNAMY.PC5 < -0.5),
+  which(isofpct.vals$BRNAMY.PC5 > 0.6),
   which(isofpct.vals$BRNAMY.PC6 < -0.5),
-  
-  which(isofpct.vals$BRNCTX.PC6 > 0.4),  # "GTEX.OHPN.BRNCTX" - same subject is outlier in BRNCTXBA9 gene
-  
-  which(isofpct.vals$BRNCTXBA9.PC4 > 0.4),  # "GTEX.13IVO.BRNCTXBA9" - same subject is outlier in first round BRNACC
-  which(isofpct.vals$BRNCTXBA9.PC6 < -0.4), # "GTEX.131XW.BRNCTXBA9"
-  
-  which(isofpct.vals$BRNHIP.PC5 > 0.6),
+
+  which(isofpct.vals$BRNHIP.PC5 < -0.6),
   which(isofpct.vals$BRNHIP.PC6 < -0.6),
   
-  which(isofpct.vals$BRNHYP.PC5 > 0.4),   # "GTEX.OHPN.BRNHYP" - same subj outlier in other tissues
-  
-  which(isofpct.vals$BRNPUT.PC4 < -0.4),  # "GTEX.12WSE.BRNPUT" outlier is PC5 and PC6 too
-  which(isofpct.vals$BRNPUT.PC5 > 0.4),   # "GTEX.12WSE.BRNPUT"
-  
-  which(isofpct.vals$BRNSNA.PC4 < -0.4)
+  which(isofpct.vals$BRNPUT.PC6 > 0.4)
 )]
 
 
