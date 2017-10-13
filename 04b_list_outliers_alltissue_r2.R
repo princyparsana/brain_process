@@ -15,25 +15,27 @@ covars <- covars[make.names(covars$st_id) %in% rownames(gene.vals),]
 
 covar.outliers <- covars$st_id[c()]
 
-gene.pc.outliers <- rownames(gene.vals)[c()]
+gene.pc.outliers <- rownames(gene.vals)[c(
+  which(gene.vals$ESPGEJ.PC1 > 0.3),
+  which(gene.vals$WHLBLD.PC4 > 0.2)
+)]
 
-isof.pc.outliers <- rownames(isof.vals)[c()]
+isof.pc.outliers <- rownames(isof.vals)[c(
+  which(isof.vals$ESPGEJ.PC1 > 0.25)
+)]
 
 isofpct.pc.outliers <- rownames(isofpct.vals)[c(
-  which(isofpct.vals$BRNACC.PC4 < -0.5),
-  which(isofpct.vals$BRNACC.PC5 > 0.6),
+  which(isofpct.vals$BRNACC.PC4 < -0.45),
+  which(isofpct.vals$BRNAMY.PC5 > 0.6),
   which(isofpct.vals$BRNHIP.PC5 < -0.6),
-  which(isofpct.vals$BRNHYP.PC4 < -0.4), # ?
+  which(isofpct.vals$BRNHYP.PC4 < -0.4),
   which(isofpct.vals$BRNSNA.PC4 < -0.5),
   which(isofpct.vals$ESPGEJ.PC5 < -0.5),
-  which(isofpct.vals$FIBRCUL.PC5 < -0.4),
   which(isofpct.vals$HRTAA.PC5 < -0.6),
-  which(isofpct.vals$LCL.PC1 > 0.5),
-  which(isofpct.vals$LCL.PC3 < -0.4),
-  which(isofpct.vals$LCL.PC5 < -0.5),
   which(isofpct.vals$PTTARY.PC5 < -0.3),
   which(isofpct.vals$SALVMNR.PC5 > 0.5),
-  which(isofpct.vals$THYROID.PC5 > 0.4)
+  which(isofpct.vals$THYROID.PC5 > 0.4),
+  which(isofpct.vals$VAGINA.PC5 > 0.5)
 )]
 
 
