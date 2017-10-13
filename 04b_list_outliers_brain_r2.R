@@ -28,7 +28,12 @@ isofpct.pc.outliers <- rownames(isofpct.vals)[c(
   which(isofpct.vals$BRNHIP.PC5 < -0.6),
   which(isofpct.vals$BRNHIP.PC6 < -0.6),
   
-  which(isofpct.vals$BRNPUT.PC6 > 0.4)
+  which(isofpct.vals$BRNHYP.PC5 > 0.4),
+  which(isofpct.vals$BRNHYP.PC6 < -0.4),
+  
+  which(isofpct.vals$BRNPUT.PC6 > 0.4),
+  
+  which(isofpct.vals$BRNSNA.PC4 < -0.4)
 )]
 
 
