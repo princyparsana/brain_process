@@ -34,7 +34,7 @@ out_within_fn <- argv$out_within
 
 numeric_covariates = c("seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5", "SMRIN", "TRISCHD")
 
-categorical_covariates = c("COHORT", "DTHCODD_CAT", "DTHHRDY", "DTHRFG", "DTHVNT", "TRORGNS", "SMGEBTCH", "SMCENTER")
+categorical_covariates = c("COHORT", "DTHCODD_CAT", "DTHHRDY", "DTHRFG", "DTHVNT", "TRORGNS", "SMGEBTCH", "SMNABTCH", "SMCENTER")
 
 
 brainExpr <- read.table(expr_fn, header=T, sep='\t')
@@ -105,7 +105,7 @@ if(nchar(out_all_fn) > 0){
   form = formula(form_str)
   
   # regress covariates except tissue
-  lm.res <- lm(form, data = my_data)
+  lm.res <- lm(form, data = my_data, model = F)
   brainExpr.reg = lm.res$residuals + lm.res$coefficients[rep('(Intercept)', nrow(lm.res$residuals)), ]
   for ( coef in rownames(lm.res$coefficients) ) {
     if ( grepl('tissue_abbrev', coef) ) {
@@ -147,7 +147,7 @@ if(nchar(out_within_fn) > 0){
     
     
     # regress covariates except tissue
-    lm.res <- lm(form, data = my_data)
+    lm.res <- lm(form, data = my_data, model = F)
     brainExpr.reg[rownames(my_data),] = lm.res$residuals+ lm.res$coefficients[rep('(Intercept)', nrow(lm.res$residuals)), ]
     
     rm(my_data, ddf.base, lm.res)
