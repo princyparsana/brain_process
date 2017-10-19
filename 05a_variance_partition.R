@@ -60,7 +60,6 @@ numeric_covariates = c("AGE", "HGHT", "WGHT", "DTHRFGD", "DTHVNTD",
                        "MH_PC1", "MH_PC2", "MH_PC3", "TRCCLMPD",
                        "TRCRTMP",
                        "SMRIN", "SMTSISCH", "SMTSPAX",
-                       "SME1PCTS", "SME2PCTS", "SMRDLGTH",
                        "seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5")
 categorical_covariates = c("COHORT", "ETHNCTY", "SEX", "INCEXC", "RACE", 
                            "DTHATPSY", "DTHCODD_CAT", "DTHHRDY", 
