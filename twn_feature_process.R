@@ -11,6 +11,8 @@ iso_corrected_fn = paste0(data_root, '/20170901.gtex_expression.isoform.percenta
 
 gene_annot_fn = paste0(data_root, '/annotation/gencode.v26.annotation.gene.txt')
 transcript_annot_fn = paste0(data_root, '/annotation/gencode.v26.annotation.transcript.txt')
+twn_gene_annot_fn = paste0(data_root, '/annotation/twn.gene_annot.gtex_v8.txt')
+twn_transcript_annot_fn = paste0(data_root, '/annotation/twn.transcript_annot.gtex_v8.txt')
 grch38_gencode26_mappability_fn = paste0(data_root, '/annotation/ave_mappability_grch38_gencode26.txt')
 
 ### process tissues and filenames
@@ -231,4 +233,15 @@ ir_filter_pipeline <- function(tissue){
 
 tmp <- lapply(tissue_suffix, ir_filter_pipeline)
 
+
+### create gene and transcript annotation file for twn
+twn.annot.gene = read_df(gene_annot_fn, row.names = F)
+twn.annot.gene = twn.annot.gene[,c('gene_id', 'gene_id')]
+colnames(twn.annot.gene) = c('gene_id', 'ensembl_gene_id')
+write_df(twn.annot.gene, file = twn_gene_annot_fn, sep = '\t', row.names = F, col.names = T)
+
+twn.annot.trans = read_df(transcript_annot_fn, row.names = F)
+twn.annot.trans = twn.annot.trans[,c('transcript_id', 'gene_id', 'gene_id')]
+colnames(twn.annot.trans) = c('transcript_id', 'gene_id', 'ensembl_gene_id')
+write_df(twn.annot.trans, file = twn_transcript_annot_fn, sep = '\t', row.names = F, col.names = T)
 
