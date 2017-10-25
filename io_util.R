@@ -10,7 +10,7 @@ read_df <- function(fn, sep = '\t',  header = T, quote = "", row.names=T, string
                   data.table = FALSE)
   if (row.names == TRUE){
     rownames(data_df) = data_df[,1]
-    data_df = data_df[,-1]
+    data_df = data_df[,-1, drop=F]
   }
   return(data_df)
 }
