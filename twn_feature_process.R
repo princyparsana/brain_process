@@ -1,6 +1,7 @@
 library(data.table)
 source('io_util.R')
 source('filter_util.R')
+source('data_prep_util.R')
 
 data_root <- "/scratch1/battle-fs1/ashis/progdata/brain_process/v6"
 filter_data_root <- paste0(data_root,'/twn_data_gtex_v8_lm')
