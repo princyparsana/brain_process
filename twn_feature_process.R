@@ -50,10 +50,10 @@ for(t in tissue_suffix){
     colnames(df1) <- paste(colnames(df1), suffix, sep = '-')
     write_df(df1, file = to)
   }
-  #copy_file_and_change_colnames(from = paste0(raw_gene_tpm_indir, '/', infn), to = paste0(raw_gene_tpm_outdir, '/', outfn), suffix = t)
-  #copy_file_and_change_colnames(from = paste0(raw_gene_count_indir, '/', infn), to = paste0(raw_gene_count_outdir, '/', outfn), suffix = t)
-  #copy_file_and_change_colnames(from = paste0(raw_iso_tpm_indir, '/', infn), to = paste0(raw_iso_tpm_outdir, '/', outfn), suffix = t)
-  #copy_file_and_change_colnames(from = paste0(raw_iso_count_indir, '/', infn), to = paste0(raw_iso_count_outdir, '/', outfn), suffix = t)
+  copy_file_and_change_colnames(from = paste0(raw_gene_tpm_indir, '/', infn), to = paste0(raw_gene_tpm_outdir, '/', outfn), suffix = t)
+  copy_file_and_change_colnames(from = paste0(raw_gene_count_indir, '/', infn), to = paste0(raw_gene_count_outdir, '/', outfn), suffix = t)
+  copy_file_and_change_colnames(from = paste0(raw_iso_tpm_indir, '/', infn), to = paste0(raw_iso_tpm_outdir, '/', outfn), suffix = t)
+  copy_file_and_change_colnames(from = paste0(raw_iso_count_indir, '/', infn), to = paste0(raw_iso_count_outdir, '/', outfn), suffix = t)
   copy_file_and_change_colnames(from = paste0(raw_ir_indir, '/', infn), to = paste0(raw_ir_outdir, '/', outfn), suffix = t)
 }
 
