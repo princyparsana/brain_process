@@ -153,12 +153,12 @@ gene_filter_pipeline <- function(tissue){
   expr.df = filter_on_mappability(expr.df = expr.df, annot.mappability = annot.mappability, min.mappability = 0.97)
   print(paste0('data dimension (filtered mappability<0.97): ', nrow(expr.df), ' x ', ncol(expr.df)))
   expr.df = filter_on_tpm_read(expr.df = expr.df, tpm.df = tpm.df, count.df = count.df, min.tpm = min_tpm, min.count = min_count, min.samples = min_samples)
-  print(paste0('data dimension (filtered tpm<0.1 in >=10 samples): ', nrow(expr.df), ' x ', ncol(expr.df)))
+  print(paste0('data dimension (filtered tpm>', min_tpm, ' in <', min_samples, ' samples): ', nrow(expr.df), ' x ', ncol(expr.df)))
   # save filtered data
   write.table(expr.df, file=filter.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
   #expr.df = filter_on_variance(expr.df = expr.df, raw.df = tpm.df, n = max_genes, min.var = 1e-6)
   expr.df = filter_on_coeff_of_variation(expr.df = expr.df, raw.df = tpm.df, n = max_genes, min.var = 1e-6, min.mean = min_mean_tpm)
-  print(paste0('data dimension (filtered on variance): ', nrow(expr.df), ' x ', ncol(expr.df)))
+  print(paste0('data dimension (filtered on coefficient of variation): ', nrow(expr.df), ' x ', ncol(expr.df)))
   # save selected data
   write.table(expr.df, file=selected.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
   expr.df = inv_rank_normal_transform(t(expr.df))  # sample x gene
@@ -223,7 +223,7 @@ ir_filter_pipeline <- function(tissue){
   write.table(expr.df, file=filter.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
   #expr.df = filter_on_variance(expr.df = expr.df, raw.df = ir.df, n = max_genes, min.var = 1e-6, min.mean = min_mean_ir)
   expr.df = filter_on_coeff_of_variation(expr.df = expr.df, raw.df = ir.df, n = max_genes, min.var = 1e-6, min.mean = min_mean_ir)
-  print(paste0('data dimension (filtered on variance): ', nrow(expr.df), ' x ', ncol(expr.df)))
+  print(paste0('data dimension (filtered on coefficient of variation): ', nrow(expr.df), ' x ', ncol(expr.df)))
   # save selected data
   write.table(expr.df, file=selected.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
   expr.df = inv_rank_normal_transform(t(expr.df)) # transcript x sample
