@@ -161,7 +161,8 @@ gene_filter_pipeline <- function(tissue){
   print(paste0('data dimension (filtered on variance): ', nrow(expr.df), ' x ', ncol(expr.df)))
   # save selected data
   write.table(expr.df, file=selected.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
-  expr.df = t(inv_rank_normal_transform(t(expr.df)))
+  expr.df = inv_rank_normal_transform(t(expr.df))  # sample x gene
+  expr.df = expr.df[sort(rownames(expr.df)), sort(colnames(expr.df))]
   # save rank normalized data
   write.table(expr.df, file=gaussian.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
   return()
@@ -225,7 +226,8 @@ ir_filter_pipeline <- function(tissue){
   print(paste0('data dimension (filtered on variance): ', nrow(expr.df), ' x ', ncol(expr.df)))
   # save selected data
   write.table(expr.df, file=selected.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
-  expr.df = t(inv_rank_normal_transform(t(expr.df)))
+  expr.df = inv_rank_normal_transform(t(expr.df)) # transcript x sample
+  expr.df = expr.df[sort(rownames(expr.df)), sort(colnames(expr.df))]
   # save rank normalized data
   write.table(expr.df, file=gaussian.fn, sep = '\t', row.names = T, col.names = NA, quote = F)
   return()
