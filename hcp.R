@@ -1,3 +1,6 @@
+library(MASS)
+library(pracma)
+
 standardize<- function(X)
 {
   X = as.matrix(X)
@@ -43,8 +46,6 @@ standardize<- function(X)
    #      o: value of objective function on consecutive iterations.
    #
    # to use the residual data: Residual = Y - Z*B
-   library(MASS)
-   library(pracma)
    
    tol = 1e-6;
    
