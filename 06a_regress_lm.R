@@ -1,4 +1,5 @@
 library(argparser)
+library(preprocessCore)
 
 args <- arg_parser("program");
 args <- add_argument(args, '-expr',
@@ -10,6 +11,9 @@ args <- add_argument(args, '-cov',
 args <- add_argument(args, '-log',
                      help='log transform - log(1e-3+x)',
                      default=TRUE)
+args <- add_argument(args, '-quantile',
+                     help='quantile transform across samples',
+                     default=FALSE)
 args <- add_argument(args, '-min_sample',
                      help='In a categorical variable, a category must have a min number of samples, otherwise set to UNKNOWN for linear regression',
                      default=15)
@@ -27,6 +31,7 @@ argv = parse_args(args)
 expr_fn <- argv$expr
 cov_fn <- argv$cov
 do_log_transform <- argv$log
+do_quantile_transform <- argv$quantile
 min_samples <- argv$min_sample
 na_str <- argv$na
 out_all_fn <- argv$out_all
@@ -92,7 +97,18 @@ for(cov_name in intersect(colnames(cat_cov_df), categorical_covariates))
 
 ### regress samples from all tissues
 if(nchar(out_all_fn) > 0){
-  my_data = as.data.frame(t(brainExpr))
+  if(as.character(do_quantile_transform) == "TRUE"){
+    rows = rownames(brainExpr)
+    cols = colnames(brainExpr)
+    my_data = normalize.quantiles(as.matrix(brainExpr))
+    rownames(my_data) = rows
+    colnames(my_data) = cols
+    my_data = as.data.frame(t(my_data))
+  } else{
+    my_data = as.data.frame(t(brainExpr))
+  }
+  
+  
   predictors = intersect(colnames(brainCov), c('tissue_abbrev', categorical_covariates, numeric_covariates))
   ddf.base <- brainCov[,predictors]
   for(col in colnames(ddf.base))
@@ -134,7 +150,18 @@ if(nchar(out_within_fn) > 0){
     uniq_count = apply(ddf.base, 2, function(x) length(unique(x)))
     ddf.base = ddf.base[,uniq_count>1]
     
-    my_data = as.data.frame(t(brainExpr[,rownames(ddf.base)]))
+    if(as.character(do_quantile_transform) == "TRUE"){
+      my_data = brainExpr[,rownames(ddf.base)]
+      rows = rownames(my_data)
+      cols = colnames(my_data)
+      my_data = normalize.quantiles(as.matrix(my_data))
+      rownames(my_data) = rows
+      colnames(my_data) = cols
+      my_data = as.data.frame(t(my_data))
+    } else {
+      my_data = as.data.frame(t(brainExpr[,rownames(ddf.base)]))
+    }
+    
     for(col in colnames(ddf.base))
       my_data[,col] = ddf.base[,col]
     

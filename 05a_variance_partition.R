@@ -3,6 +3,7 @@ library(variancePartition)
 library(svd)
 library(corrplot)
 library(argparser)
+library(preprocessCore)
 
 source('io_util.R')
 
@@ -17,6 +18,9 @@ args <- add_argument(args, '-cov',
 args <- add_argument(args, '-log',
                      help='log transform - log(1e-3+x)',
                      default=TRUE)
+args <- add_argument(args, '-quantile',
+                     help='quantile transform across samples',
+                     default=FALSE)
 args <- add_argument(args, '-min_sample',
                      help='In a categorical variable, a category must have a min number of samples, otherwise set to UNKNOWN for linear regression',
                      default=15)
@@ -43,6 +47,7 @@ argv = parse_args(args)
 expr_fn <- argv$expr
 cov_fn <- argv$cov
 do_log_transform <- argv$log
+do_quantile_transform <- argv$quantile
 min_samples <- argv$min_sample
 max_pc <- argv$max_pc
 interaction_str <- argv$interaction
@@ -92,6 +97,15 @@ expr_df = expr_df[,common_samples]
 if(as.character(do_log_transform) == "TRUE"){
   expr_df = log2(1e-3+expr_df)
 }
+
+if(as.character(do_quantile_transform) == "TRUE"){
+  rows = rownames(expr_df)
+  cols = colnames(expr_df)
+  expr_df = as.data.frame(normalize.quantiles(as.matrix(expr_df)))
+  rownames(expr_df) = rows
+  colnames(expr_df) = cols
+}
+
 
 # compute expression PCs
 expr_mat_transposed = scale(t(expr_df))   # sample x gene
