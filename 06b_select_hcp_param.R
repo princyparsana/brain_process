@@ -10,19 +10,19 @@ library(corrplot)
 source('io_util.R')
 source('hcp.R')
 
-gold_eqtl_fn = '/scratch0/battle-fs1/gold_eqtls/trans_eqtls_fdr_0.1.processed.txt'
-gene_annot_fn = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/annotation/gencode.v26.annotation.gene.txt'
+gold_eqtl_fn = '/work-zfs/abattle4/lab_data/gold_eqtls/trans_eqtls_fdr_0.1.processed.txt'
+gene_annot_fn = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/annotation/gencode.v26.annotation.gene.txt'
 biomart_host = "mar2017.archive.ensembl.org"  # ensembl 88 - used by gtex v8
 genotype_vcf_fn = '/scratch0/battle-fs1/GTEx_v8/genotypes/WGS/variant_calls/GTEx_Analysis_2017-06-05_v8_WholeGenomeSeq_838Indiv_Analysis_Freeze.vcf'
-genotype_processing_dir = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/genotype'
+genotype_processing_dir = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/genotype'
 
-all_expr_fn = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt'
-all_cov_fn = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.PCs.txt'
+all_expr_fn = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/20170901.gtex_expression.gene.alltissue.good_genes.outlier_rm.txt'
+all_cov_fn = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.PCs.txt'
 
-hcp_params_fn = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/hcp_candidate_params.txt'
-hcp_eqtl_outfn = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/hcp_eqtl.txt'
-hcp_eqtl_plt_fn = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/plots/hcp_eqtl.pdf'
-hcp_best_param_outfn = '/scratch1/battle-fs1/ashis/progdata/brain_process/v6/hcp_best_param.txt'
+hcp_params_fn = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/hcp_candidate_params.txt'
+hcp_eqtl_outfn = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/hcp_eqtl.txt'
+hcp_eqtl_plt_fn = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/plots/hcp_eqtl.pdf'
+hcp_best_param_outfn = '/work-zfs/abattle4/ashis/progdata/brain_process/v6/hcp_best_param.txt'
 
 numeric_covariates = c("seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5", "SMRIN", "TRISCHD")
 categorical_covariates = c("COHORT", "DTHCODD_CAT", "DTHHRDY", "DTHRFG", "DTHVNT", "TRORGNS", "SMGEBTCH", "SMNABTCH", "SMCENTER")
@@ -35,7 +35,7 @@ hcp_seed = 101
 hcp_iteration = 1000
 min_samples_per_category = 15
 na_str = 'UNKNOWN'
-n_cores = 16
+n_cores = 8
 
 # matrix-eqtl parameters
 useModel = modelLINEAR
@@ -263,9 +263,9 @@ lock_file = paste0(hcp_eqtl_outfn, '.lock')
 tmp_out_file = paste0(hcp_eqtl_outfn, '.tmp')
 file.remove(tmp_out_file)
 write_temp_output <- function(df){
-  system(sprintf("lockfile '%s'", lock_file))
+  #system(sprintf("lockfile '%s'", lock_file))
   write.table(df, file = tmp_out_file, append = T, sep = '\t', quote = F, row.names = F, col.names = F)
-  system(sprintf("rm -f '%s'", lock_file))
+  #system(sprintf("rm -f '%s'", lock_file))
 }
 
 cur_hcp_eqtl_df = NULL
@@ -296,6 +296,7 @@ for(sz in sample_sizes){
         ### run hcp
         hcp_results = hidden_convariate_linear(F = cov_hcp, Y = expr_hcp, k = params[1], lambda = params[2], lambda2 = params[3], lambda3 = params[4], iter = hcp_iteration)
         residual_hcp = expr_hcp - hcp_results$Z %*% hcp_results$B
+        rm(hcp_results)
       }
       
       ### run trans eqtl
@@ -315,7 +316,8 @@ for(sz in sample_sizes){
         pvalue.hist = TRUE,
         min.pv.by.genesnp = FALSE,
         noFDRsaveMemory = FALSE);
-      
+    
+ 
       # compute number of gold eqtls reproduced at fdr<=0.05 and at pvalue<=0.05
       tested_eqtls = merge(me$all$eqtls, gold_eqtl_df, by.x=c('snps', 'gene'), by.y = c('snps', 'ensembl_gene_id'))
       tested_eqtls$FDR = p.adjust(tested_eqtls$pvalue, method = 'BH')
@@ -342,12 +344,16 @@ for(sz in sample_sizes){
       if(params[1] == 0 && is.null(uncorrected_reproduced_df)){
         uncorrected_reproduced_df <<- reproduced_df
       }
-      
+      rm(snp_meqtl, expr_meqtl, cov_meqtl, me, tested_eqtls, residual_hcp) 
+      gc(reset = T)  
       return(reproduced_df)
     })
 
     for(hdf in size_rep_hcp_eqtls)
       cur_hcp_eqtl_df = rbind(cur_hcp_eqtl_df, hdf)
+
+    rm(expr_hcp, cov_hcp, snp_hcp, size_rep_hcp_eqtls)
+    gc(reset = T)
   }
 }
 
@@ -520,3 +526,4 @@ for(sz in unique(cur_hcp_eqtl_df$nsample)){
 dev.off()
 
 write_df(best_params_df, file = hcp_best_param_outfn, sep = '\t', row.names = F, col.names = T)
+
