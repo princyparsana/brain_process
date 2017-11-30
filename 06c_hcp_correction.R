@@ -31,6 +31,9 @@ args <- add_argument(args, '-na',
 args <- add_argument(args, '-o',
                      help='corrected expression file',
                      default='results/20170901.gtex_expression.brain.good_genes.outlier_rm.hcp.within_tissue.txt')
+args <- add_argument(args, '-o2',
+                     help='hcp factors output directory',
+                     default='results/20170901.gtex_expression.brain.good_genes.outlier_rm.hcp.within_tissue.factors')
 
 
 argv = parse_args(args)
@@ -43,6 +46,7 @@ min_samples_per_category = argv$min_sample
 hcp_param_mode = argv$mode
 na_str = argv$na
 out_fn = argv$o
+out_factor_dir = argv$o2
 
 
 numeric_covariates = c("seq_pc1", "seq_pc2", "seq_pc3", "seq_pc4", "seq_pc5", "SMRIN", "TRISCHD")
@@ -50,6 +54,9 @@ categorical_covariates = c("COHORT", "DTHCODD_CAT", "DTHHRDY", "DTHRFG", "DTHVNT
 
 hcp_iteration = 1000
 
+if(dir.exists(out_factor_dir))
+  stop('factor output directory already exists')
+dir.create(out_factor_dir)
 
 ### read data
 brainExpr <- read.table(expr_fn, header=T, sep='\t')
@@ -180,6 +187,15 @@ for(tissue in tissues){
   hcp_results = hidden_convariate_linear(F = tissue_cov, Y = tissue_expr, k = tissue_hcp_param$k, lambda = tissue_hcp_param$l1, lambda2 = tissue_hcp_param$l2, lambda3 = tissue_hcp_param$l3, iter = hcp_iteration)
   residual_hcp = tissue_expr - hcp_results$Z %*% hcp_results$B
   brainExpr.reg[rownames(tissue_expr),] = residual_hcp
+  
+  # save hcp factors
+  rownames(hcp_results$Z) = gsub('\\.', '-', x=rownames(hcp_results$Z))
+  colnames(hcp_results$Z) = paste0('HCP_Z', 1:ncol(hcp_results$Z))
+  rownames(hcp_results$B) = colnames(hcp_results$Z)
+  hcp_factors_fn = sprintf("%s/%s.hidden_factors.txt", out_factor_dir, tissue)
+  hcp_effects_fn = sprintf("%s/%s.hidden_effects.txt", out_factor_dir, tissue)
+  write_df(hcp_results$Z, file = hcp_factors_fn)
+  write_df(hcp_results$B, file = hcp_effects_fn)
   
   rm(tissue_cov, tissue_expr, hcp_results, residual_hcp)
   gc(reset = T)
