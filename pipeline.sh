@@ -615,6 +615,48 @@ done
 
 
 ### HCP correction: correct brain data
+# gene
+expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
+hcp_best_param_fn="$data_dir/hcp_best_param.txt"
+do_log=TRUE
+do_qn=TRUE
+min_sample=15
+mode="multiple"  # 'multiple' / 'single'
+na_str="UNKNOWN"
+out_within="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.hcp.within_tissue.txt"
+out_factor="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.hcp.within_tissue.factors"
+Rscript 06c_hcp_correction.R -expr $expr_fn -cov $cov_fn -param $hcp_best_param_fn -log $do_log -quantile $do_qn -min_sample $min_sample -mode $mode -na "$na_str" -o "$out_within" -o2 "$out_factor"   2>&1 | tee $log_dir/06c_hcp_brain_gene.log
+
+
+# isoform
+expr_fn="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
+hcp_best_param_fn="$data_dir/hcp_best_param.txt"
+do_log=TRUE
+do_qn=TRUE
+min_sample=15
+mode="multiple"
+na_str="UNKNOWN"
+out_within="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.hcp.within_tissue.txt"
+out_factor="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.hcp.within_tissue.factors"
+Rscript 06c_hcp_correction.R -expr $expr_fn -cov $cov_fn -param $hcp_best_param_fn -log $do_log -quantile $do_qn -min_sample $min_sample -mode $mode -na "$na_str" -o "$out_within" -o2 "$out_factor"   2>&1 | tee $log_dir/06c_hcp_brain_iso.log
+
+# isoform ratio
+expr_fn="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
+hcp_best_param_fn="$data_dir/hcp_best_param.txt"
+do_log=FALSE
+do_qn=FALSE
+min_sample=15
+mode="multiple"
+na_str="UNKNOWN"
+out_within="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.hcp.within_tissue.txt"
+out_factor="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.hcp.factors"
+Rscript 06c_hcp_correction.R -expr $expr_fn -cov $cov_fn -param $hcp_best_param_fn -log $do_log -quantile $do_qn -min_sample $min_sample -mode $mode -na "$na_str" -o "$out_within" -o2 "$out_factor"   2>&1 | tee $log_dir/06c_hcp_brain_isopct.log
+
+
+### HCP correction: correct alltissue data
 
 
 ### divide data tissue-wise for lm and hcp
