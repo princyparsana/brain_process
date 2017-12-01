@@ -659,6 +659,41 @@ Rscript 06c_hcp_correction.R -expr $expr_fn -cov $cov_fn -param $hcp_best_param_
 ### HCP correction: correct alltissue data
 
 
+### lm+hcp regression (brain tissues)
+# gene
+expr_fn="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
+hcp_factor_dir="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.hcp.within_tissue.factors"
+do_log=TRUE
+do_qn=TRUE
+min_sample=15
+na_str="UNKNOWN"
+out_within="$data_dir/20170901.gtex_expression.brain.good_genes.outlier_rm.lm_hcp_regressed.within_tissue.txt"
+Rscript 06d_regress_lm_hcp_factors.R -expr $expr_fn -cov $cov_fn -hidden $hcp_factor_dir -log $do_log -quantile $do_qn -min_sample $min_sample -na "$na_str" -out_within "$out_within"  2>&1 | tee $log_dir/06d_regress_lm_hcp_brain_gene.log
+
+# isoform
+expr_fn="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
+hcp_factor_dir="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.hcp.within_tissue.factors"
+do_log=TRUE
+do_qn=TRUE
+min_sample=15
+na_str="UNKNOWN"
+out_within="$data_dir/20170901.gtex_expression.isoform.brain.good_genes.outlier_rm.lm_hcp_regressed.within_tissue.txt"
+Rscript 06d_regress_lm_hcp_factors.R -expr $expr_fn -cov $cov_fn -hidden $hcp_factor_dir -log $do_log -quantile $do_qn -min_sample $min_sample -na "$na_str" -out_within "$out_within"  2>&1 | tee $log_dir/06d_regress_lm_hcp_brain_iso.log
+
+# isoform ratio
+expr_fn="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.txt"
+cov_fn="$cov_data_dir/20170901.all_covariates.PCs.brain.txt"
+hcp_factor_dir="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.hcp.factors"
+do_log=FALSE
+do_qn=FALSE
+min_sample=15
+na_str="UNKNOWN"
+out_within="$data_dir/20170901.gtex_expression.isoform.percentage.brain.good_genes.outlier_rm.lm_hcp_regressed.within_tissue.txt"
+Rscript 06d_regress_lm_hcp_factors.R -expr $expr_fn -cov $cov_fn -hidden $hcp_factor_dir -log $do_log -quantile $do_qn -min_sample $min_sample -na "$na_str" -out_within "$out_within"  2>&1 | tee $log_dir/06d_regress_lm_hcp_brain_isopct.log
+
+
 ### divide data tissue-wise for lm and hcp
 
 
