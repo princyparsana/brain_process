@@ -2,14 +2,14 @@
 
 ### this script contains the full pipeline
 
-data_dir="/work-zfs/abattle4/ashis/progdata/brain_process/v6"
-method_compare_prog="/work-zfs/abattle4/ashis/prog/misc/correction_comparison/compare_expr_correction_methods.R"
+data_dir="/work-zfs/abattle4/parsana/networks_correction/brain_analysis/v8_5tiss_chris_ashis"
+# method_compare_prog="/work-zfs/abattle4/ashis/prog/misc/correction_comparison/compare_expr_correction_methods.R"
 gtex_abbrev_fn="$data_dir/gtex_abbrevs.csv"
 cov_data_dir="$data_dir/covariates"
 log_dir="$data_dir/logs"
 var_exp_dir="$data_dir/variance_explained"
 plt_dir="$data_dir/plots"
-brain_tissues=(BRNCTXBA9 BRNCDT BRNACC BRNPUT BRNHYP BRNHIP BRNCTXB24 BRNSNA BRNAMY)
+brain_tissues=(ADPSBQ LUNG MSCLSK THYROID WHLBLD)
 
 if [ ! -f $gtex_abbrev_fn ]; then
   echo "GTEx tissue abbreviation file does not exist.";
