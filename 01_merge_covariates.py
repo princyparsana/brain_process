@@ -4,7 +4,7 @@ import numpy as np
 from csv import QUOTE_ALL
 
 # file names
-data_dir='/scratch1/battle-fs1/ashis/progdata/brain_process/v6'
+data_dir='/work-zfs/abattle4/parsana/networks_correction/brain_analysis/v8_5tiss_chris_ashis'
 gtex_abbrevs_fn = data_dir + '/gtex_abbrevs.csv'
 gtex_sample_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SampleAttributesDS.txt'
 gtex_subject_annotation_fn = '/scratch0/battle-fs1/GTEx_v8/sample_annotations/GTEx_Analysis_2017-06-05_v8_Annotations_SubjectPhenotypesDS.txt'
