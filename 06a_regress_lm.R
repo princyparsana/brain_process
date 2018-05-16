@@ -4,10 +4,10 @@ library(preprocessCore)
 args <- arg_parser("program");
 args <- add_argument(args, '-expr',
                      help='expression file',
-                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/20170901.gtex_expression.brain.good_genes.outlier_rm.txt')
+                     default='/work-zfs/abattle4/parsana/networks_correction/brain_analysis/v8_5tiss_chris_ashis/20170901.gtex_expression.brain.good_genes.outlier_rm.txt')
 args <- add_argument(args, '-cov',
                      help='covariate file',
-                     default='/scratch1/battle-fs1/ashis/progdata/brain_process/v6/covariates/20170901.all_covariates.PCs.brain.txt')
+                     default='/work-zfs/abattle4/parsana/networks_correction/brain_analysis/v8_5tiss_chris_ashis/covariates/20170901.all_covariates.PCs.brain.txt')
 args <- add_argument(args, '-log',
                      help='log transform - log(1e-3+x)',
                      default=TRUE)
@@ -22,10 +22,10 @@ args <- add_argument(args, '-na',
                      default="UNKNOWN")
 args <- add_argument(args, '-out_all',
                      help='output expression file regressed with all tissues',
-                     default="results/lm_regressd.txt")
+                     default="/work-zfs/abattle4/parsana/networks_correction/brain_analysis/v8_5tiss_chris_ashis/lm_regressd.txt")
 args <- add_argument(args, '-out_within',
                      help='output expression file regressed within each tissue',
-                     default="results/lm_regressd.within.txt")
+                     default="/work-zfs/abattle4/parsana/networks_correction/brain_analysis/v8_5tiss_chris_ashis/lm_regressd.within.txt")
 
 argv = parse_args(args)
 expr_fn <- argv$expr
